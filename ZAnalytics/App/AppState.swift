@@ -30,7 +30,7 @@ final class AppState: ObservableObject {
         self.settingsStore = settingsStore
         self.preferenceStore = preferenceStore
         self.preferences = preferenceStore.loadPreferences()
-        self.endpointTemplates = preferenceStore.loadEndpointTemplates()
+        self.endpointTemplates = AppState.migrateEndpointTemplates(preferenceStore.loadEndpointTemplates())
         self.selectedReport = ReportCatalog.defaults[0]
         self.reportRequest = ReportRequest(definition: ReportCatalog.defaults[0])
         self.selectedHTMLTemplate = ReportCatalog.defaults[0].defaultPresentationTemplate
@@ -72,7 +72,7 @@ final class AppState: ObservableObject {
     func resetEndpointTemplates() {
         endpointTemplates = EndpointTemplate.defaults
         preferenceStore.saveEndpointTemplates(endpointTemplates)
-        statusMessage = t("Endpoint templates reset to placeholder defaults.", "Endpoint-mallar återställda till platshållarstandard.")
+        statusMessage = t("Endpoint templates reset to Z-Insights defaults.", "Endpoint-mallar återställda till Z-Insights-standard.")
     }
 
     func selectReport(_ report: ReportDefinition) {
@@ -179,6 +179,17 @@ final class AppState: ObservableObject {
 
     private func t(_ english: String, _ swedish: String) -> String {
         L10n.text(english, swedish, language: preferences.language)
+    }
+
+    private static func migrateEndpointTemplates(_ templates: [EndpointTemplate]) -> [EndpointTemplate] {
+        let liveDefaults = Dictionary(uniqueKeysWithValues: EndpointTemplate.defaults.map { ($0.key, $0) })
+        return templates.map { template in
+            guard let replacement = liveDefaults[template.key] else { return template }
+            if template.pathTemplate.hasPrefix("/oneapi/analytics/") || template.graphqlEndpointPath == "/oneapi/graphql" {
+                return replacement
+            }
+            return template
+        }
     }
 }
 

@@ -102,6 +102,8 @@ final class ZAnalyticsTests: XCTestCase {
         XCTAssertEqual(variables?["limit"] as? Int, request.limit)
         XCTAssertEqual(variables?["report"] as? String, "web-usage")
         XCTAssertNotNil(variables?["dateRange"] as? [String: Any])
+        XCTAssertNotNil(variables?["startTime"] as? Int)
+        XCTAssertNotNil(variables?["endTime"] as? Int)
     }
 
     func testGraphQLVariablesOverrideDefaultReportVariables() throws {

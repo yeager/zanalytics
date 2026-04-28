@@ -73,33 +73,43 @@ struct EndpointTemplate: Codable, Identifiable, Hashable {
             key: "web",
             displayName: "Web Traffic Analytics",
             category: "Web",
+            transport: .graphql,
             pathTemplate: "/oneapi/analytics/web/v1/report",
-            graphqlQuery: EndpointTemplate.defaultGraphQLQuery(operationName: "webAnalytics"),
-            notes: "Placeholder for web traffic analytics. REST and GraphQL paths may vary by tenant rollout; confirm in Automation Hub or your admin portal."
+            graphqlEndpointPath: "/zins/graphql",
+            graphqlQuery: EndpointTemplate.webTrafficByLocationQuery,
+            graphqlVariablesJSON: "{\"trafficUnit\":\"TRANSACTIONS\"}",
+            notes: "Z-Insights GraphQL web traffic grouped by location. Requires OneAPI Z-Insights analytics permissions."
         ),
         EndpointTemplate(
             key: "threats",
             displayName: "Cybersecurity Analytics",
             category: "Cybersecurity",
+            transport: .graphql,
             pathTemplate: "/oneapi/analytics/cybersecurity/v1/report",
-            graphqlQuery: EndpointTemplate.defaultGraphQLQuery(operationName: "cybersecurityAnalytics"),
-            notes: "Placeholder for threat and security analytics. RBAC, licensed features, and REST vs GraphQL availability may change available fields."
+            graphqlEndpointPath: "/zins/graphql",
+            graphqlQuery: EndpointTemplate.cyberSecurityByLocationQuery,
+            graphqlVariablesJSON: "{\"categorizeBy\":\"LOCATION_ID\"}",
+            notes: "Z-Insights GraphQL cybersecurity incidents grouped by location. Requires OneAPI Z-Insights analytics permissions."
         ),
         EndpointTemplate(
             key: "saas",
             displayName: "SaaS Security / Shadow IT",
             category: "SaaS",
+            transport: .graphql,
             pathTemplate: "/oneapi/analytics/saas/v1/report",
-            graphqlQuery: EndpointTemplate.defaultGraphQLQuery(operationName: "saasAnalytics"),
-            notes: "Placeholder for SaaS security and Shadow IT reporting. Confirm whether REST or GraphQL is enabled for your tenant."
+            graphqlEndpointPath: "/zins/graphql",
+            graphqlQuery: EndpointTemplate.saasSecurityAppReportQuery,
+            notes: "Z-Insights GraphQL CASB/SaaS app report. Requires SaaS Security analytics permissions."
         ),
         EndpointTemplate(
             key: "firewall",
             displayName: "Zero Trust Firewall",
             category: "Firewall",
+            transport: .graphql,
             pathTemplate: "/oneapi/analytics/firewall/v1/report",
-            graphqlQuery: EndpointTemplate.defaultGraphQLQuery(operationName: "firewallAnalytics"),
-            notes: "Placeholder for Zero Trust Firewall and network activity reporting. API shape may differ during tenant rollout."
+            graphqlEndpointPath: "/zins/graphql",
+            graphqlQuery: EndpointTemplate.firewallByLocationQuery,
+            notes: "Z-Insights GraphQL Zero Trust Firewall traffic grouped by location. Requires firewall analytics permissions."
         ),
         EndpointTemplate(
             key: "zpa",
@@ -128,6 +138,63 @@ struct EndpointTemplate: Codable, Identifiable, Hashable {
         }
         """
     }
+
+    static let webTrafficByLocationQuery = """
+    query WebTrafficByLocation($startTime: Long!, $endTime: Long!, $trafficUnit: WebTrafficUnits!, $limit: Int) {
+      WEB_TRAFFIC {
+        location(start_time: $startTime, end_time: $endTime, traffic_unit: $trafficUnit) {
+          obfuscated
+          entries(limit: $limit) {
+            name
+            total
+          }
+        }
+      }
+    }
+    """
+
+    static let cyberSecurityByLocationQuery = """
+    query CyberSecurityByLocation($startTime: Long!, $endTime: Long!, $categorizeBy: IncidentsWithIdGroupBy!, $limit: Int) {
+      CYBER_SECURITY {
+        cyber_security_location(categorize_by: $categorizeBy, start_time: $startTime, end_time: $endTime) {
+          obfuscated
+          entries(limit: $limit) {
+            id
+            name
+            total
+          }
+        }
+      }
+    }
+    """
+
+    static let saasSecurityAppReportQuery = """
+    query CasbAppReport($startTime: Long!, $endTime: Long!, $limit: Int) {
+      SAAS_SECURITY {
+        casb_app(start_time: $startTime, end_time: $endTime) {
+          obfuscated
+          entries(limit: $limit) {
+            name
+            total
+          }
+        }
+      }
+    }
+    """
+
+    static let firewallByLocationQuery = """
+    query FirewallByLocation($startTime: Long!, $endTime: Long!, $limit: Int) {
+      ZERO_TRUST_FIREWALL {
+        location_firewall(start_time: $startTime, end_time: $endTime) {
+          obfuscated
+          entries(limit: $limit) {
+            name
+            total
+          }
+        }
+      }
+    }
+    """
 }
 
 enum HTTPMethod: String, Codable, CaseIterable, Identifiable {

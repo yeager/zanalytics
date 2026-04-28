@@ -329,6 +329,9 @@ enum GraphQLRequestBuilder {
 
     private static func mergedVariables(for request: ReportRequest, variablesJSON: String) throws -> [String: Any] {
         var variables = request.payload()
+        variables["startTime"] = Int(request.startDate.timeIntervalSince1970 * 1000)
+        variables["endTime"] = Int(request.endDate.timeIntervalSince1970 * 1000)
+        variables["limit"] = request.limit
         let trimmed = variablesJSON.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return variables
