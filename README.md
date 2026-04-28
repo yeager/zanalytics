@@ -1,103 +1,155 @@
 # ZAnalytics
 
-ZAnalytics is a native macOS SwiftUI app for building and exporting analytics reports through configurable Zscaler OneAPI endpoint templates.
+ZAnalytics is a native macOS SwiftUI app for building, previewing, and exporting Zscaler OneAPI analytics reports.
 
-This is an unofficial helper. It is not affiliated with, endorsed by, or sponsored by Zscaler. Use Zscaler Automation Hub as the primary documentation source: https://automate.zscaler.com
+It is designed for teams that need repeatable security, web, SaaS, ZPA, ZDX, and firewall reporting without hand-building the same exports every time. The app ships with mock data so you can explore the workflow immediately, then switch to live OneAPI credentials when your tenant endpoints and RBAC are ready.
 
-## Features
+> [!IMPORTANT]
+> ZAnalytics is an unofficial helper. It is not affiliated with, endorsed by, or sponsored by Zscaler. Use Zscaler Automation Hub as the source of truth for current OneAPI behavior: <https://automate.zscaler.com>
 
-- Canned reports for executive security, web usage, SaaS/Shadow IT, threat overview, firewall/network activity, ZPA access activity, and ZDX experience.
-- Customizable report fields, dimensions, filters, date range, sort, and row limit.
-- Editable REST and GraphQL endpoint templates because OneAPI analytics paths, fields, tenant features, RBAC, and rollout timing can vary.
-- GraphQL templates include endpoint path, query text, and variables JSON. The app posts `{ "query": "...", "variables": { ... } }` and merges built-in report variables with tenant-specific overrides.
-- Settings buttons to authenticate, fetch an OAuth token, decode visible JWT metadata such as scopes/expiry, and test the selected report endpoint separately.
-- Mock sample data mode so the app can be explored without credentials.
-- JSON, CSV, printable HTML, PDF, and PowerPoint (`.pptx`) exports. HTML/PDF/PPTX support Executive Summary, Technical Detail, and Customer Success Review presentation templates.
-- Offline HTML charts: KPI cards, CSS bar charts, inline SVG trend charts, severity/category sections, full table, methodology, footer, and an unofficial disclaimer. No external JavaScript, CDN, or network dependency is required for exported reports.
-- Keychain storage for OneAPI client ID, client secret/API secret, base URL, vanity domain, cloud name, tenant ID, audience, and token path.
+## Download
 
-## OneAPI Notes
+Download the latest macOS DMG from the GitHub Releases page:
 
-Public docs and product behavior may vary by tenant. Current assumptions used by this app are based on Zscaler Automation Hub (`https://automate.zscaler.com`):
+- <https://github.com/yeager/zanalytics/releases/latest>
 
-- OneAPI access is created in ZIdentity.
-- Automation Hub describes creating API roles/clients in ZIdentity, authenticating with client secrets or signed JWTs, then calling Zscaler APIs with the resulting token.
-- OAuth2 client credentials are supported with client secrets/API secrets.
-- Signed JWT authentication is represented in the client abstraction, but local signing setup is intentionally not implemented yet.
-- ZAnalytics supports configurable REST requests and configurable GraphQL POST requests (`query` + `variables`) so tenants can adapt to the API shape they have available.
-- Analytics categories may include Web traffic, cybersecurity, SaaS security, Zero Trust Firewall, IoT, Shadow IT, ZPA, and ZDX, depending on licensing and RBAC.
-- Request IDs, RBAC, retry/rate-limit handling, and cache/repeated-query behavior should be expected.
+The distributed app/DMG is currently unsigned and not notarized. macOS may require you to approve it manually in Privacy & Security, or you can build it locally from source.
 
-Before using live mode, confirm the base URL, token path, analytics endpoint paths, GraphQL endpoint/query shape, allowed fields, filters, and dimensions against Automation Hub, your tenant documentation, or your admin portal. The default endpoint paths and queries are placeholders.
+## What it does
 
-## Report Templates and Charts
+- Builds analytics reports from configurable Zscaler OneAPI endpoint templates.
+- Supports REST and GraphQL-style endpoint definitions.
+- Stores OneAPI connection settings securely in macOS Keychain.
+- Lets you test authentication separately from report endpoint/RBAC issues.
+- Provides mock sample data for demos, UI testing, and report design without credentials.
+- Exports report output as JSON, CSV, HTML, PDF, and PowerPoint (`.pptx`).
 
-Each canned report includes friendly presentation guidance and a default HTML template:
+## Current report catalog
 
-- Executive Summary: outcome-focused KPI cards, compact narrative, charts, and concise evidence.
-- Technical Detail: operational grouping, severity/category sections, full table, and methodology for validation.
-- Customer Success Review: adoption/value framing, trend view, follow-up sections, and customer-ready visuals.
+ZAnalytics includes canned report definitions for:
 
-The presentation template can be selected from the report output toolbar. JSON and CSV exports emit raw response JSON or tabular rows; HTML/PDF/PPTX generate formatted report artifacts.
+- Executive Security Summary
+- Web Usage Overview
+- SaaS / Shadow IT Review
+- Threat Overview
+- Firewall / Network Activity
+- ZPA Access Activity
+- ZDX Experience Summary
 
-Charts are generated from returned numeric fields using local CSS and SVG only. The renderer prefers common analytics fields such as `detections`, `requests`, `sessions`, `blocked`, `users`, `experience_score`, and `risk_score`, then falls back to the first numeric field it can detect.
+Each report includes default fields, dimensions, filters, endpoint template hints, and a preferred presentation style.
 
-## Automation Hub Workflow
+## Export formats
 
-Use Zscaler Automation Hub as the source of truth for current OneAPI behavior:
+| Format | Purpose |
+| --- | --- |
+| JSON | Raw response JSON for debugging, archival, or custom processing. |
+| CSV | Tabular rows for spreadsheet workflows. |
+| HTML | Offline formatted report with KPI cards, charts, full table, methodology, and disclaimer. |
+| PDF | Formatted report artifact for sharing and review. |
+| PPTX | PowerPoint deck with title, key metrics, and row preview slides. |
+
+HTML, PDF, and PPTX exports use the selected presentation template:
+
+- **Executive Summary** — outcome-focused KPI cards, concise narrative, and leadership-friendly evidence.
+- **Technical Detail** — operational grouping, severity/category sections, full evidence table, and methodology.
+- **Customer Success Review** — adoption/value framing, trends, and customer-ready discussion points.
+
+All generated report files may contain tenant data. Store and share them according to your organization’s policy.
+
+## OneAPI configuration
+
+OneAPI behavior can vary by tenant, product, cloud, licensing, RBAC, and rollout timing. ZAnalytics intentionally keeps endpoint definitions editable instead of pretending there is one universal analytics API shape.
+
+Settings include:
+
+- Client ID
+- Client secret / API secret
+- Base URL
+- Token path
+- Vanity domain
+- Cloud name
+- Tenant ID
+- OAuth audience
+- Authentication method
+- REST/GraphQL endpoint templates
+- GraphQL query and variables JSON
+
+The app can:
+
+1. Request an OAuth token.
+2. Decode visible JWT metadata such as expiry, scopes, subject, issuer, and audience when present.
+3. Run a tiny endpoint probe to separate credential/token failures from endpoint or RBAC failures.
+
+ZAnalytics never displays or logs the raw token value.
+
+## Suggested Automation Hub workflow
 
 1. Create or verify the API role/client in ZIdentity.
-2. Confirm OAuth audience, token path, base URL, tenant/cloud details, and supported auth method.
-3. Confirm whether each analytics use case is exposed through REST, GraphQL, or product-specific APIs for your tenant.
-4. Copy endpoint paths, GraphQL queries, variable names, fields, filters, dimensions, and RBAC requirements into Settings > Endpoints.
-5. Use Authenticate first to isolate credential/token issues, then Test Connection to probe the selected report endpoint with a small limit.
+2. Confirm the tenant vanity domain and cloud.
+3. Confirm OAuth audience, token path, and supported authentication method.
+4. Confirm whether the analytics use case is exposed through REST, GraphQL, or product-specific APIs for your tenant.
+5. Copy endpoint paths, GraphQL queries, variables, fields, filters, dimensions, and RBAC requirements into **Settings > Endpoints**.
+6. Use **Authenticate** first.
+7. Use **Test Connection** with a small row limit.
+8. Run the full report and export the result.
 
-## Setup
+## Security model
 
-1. Open `ZAnalytics.xcodeproj` in Xcode 26.2 or newer.
-2. Build and run the `ZAnalytics` scheme.
-3. Start in mock mode, then open Settings when you have OneAPI credentials.
-4. Save OneAPI settings. Sensitive settings are stored in macOS Keychain.
-5. Review Settings > Endpoints and adjust endpoint templates for your tenant.
+- Credentials are stored in macOS Keychain.
+- Non-sensitive preferences and endpoint templates are stored in UserDefaults.
+- No API keys, bearer tokens, client secrets, or tenant secrets are hardcoded in the app.
+- Use least-privilege RBAC for the ZIdentity API client.
+- Treat endpoint template notes and GraphQL variables as configuration, not as a secret store.
+- Review generated exports before sharing; they may contain customer or tenant-sensitive data.
 
-## Security
+## Build from source
 
-- Do not commit credentials.
-- Keychain stores connection settings and secrets.
-- UserDefaults stores only non-sensitive app preferences and endpoint templates.
-- The app does not ship hardcoded secrets.
-- Use least-privilege RBAC for any ZIdentity API client.
-- Treat endpoint templates and GraphQL variables as configuration, not secrets. Do not place bearer tokens, client secrets, or customer-sensitive data in template notes or variables JSON.
-- Exported JSON, CSV, HTML, PDF, and PPTX may contain tenant data. Store and share generated reports according to your organization policy.
+Requirements:
 
-## Build and Test
+- macOS 14 or newer target
+- Xcode 26.2 or newer
+
+Build:
 
 ```sh
 xcodebuild -project ZAnalytics.xcodeproj -scheme ZAnalytics -destination 'platform=macOS' build
+```
+
+Run tests:
+
+```sh
 xcodebuild -project ZAnalytics.xcodeproj -scheme ZAnalytics -destination 'platform=macOS' test
 ```
 
-## Create Unsigned App and DMG
+Create an unsigned release app and DMG:
 
 ```sh
 scripts/build_dmg.sh
 ```
 
-The script creates:
+Output:
 
 - `build/Release/ZAnalytics.app`
 - `build/ZAnalytics.dmg`
 
-The DMG is unsigned and not notarized. Main/release automation should handle signing, notarization, and publishing if needed.
+## Development status
+
+ZAnalytics is early-stage and intentionally conservative:
+
+- Endpoint templates are placeholders until you confirm your tenant’s actual OneAPI paths and schema.
+- Signed JWT authentication is represented in the client abstraction, but local signing configuration is not implemented yet.
+- The PDF/PPTX renderers are built-in lightweight exporters, not full design tools.
+- Signing/notarization is not yet automated.
 
 ## Screenshots
 
-Add release screenshots here:
+Screenshots are planned. Useful captures to add:
 
-- `docs/screenshots/onboarding.png`
-- `docs/screenshots/report-builder.png`
-- `docs/screenshots/html-export.png`
+- Onboarding / setup wizard
+- Report builder
+- Report output preview
+- HTML/PDF/PPTX exports
 
 ## License
 
-MIT. See `LICENSE`.
+MIT. See [`LICENSE`](LICENSE).
