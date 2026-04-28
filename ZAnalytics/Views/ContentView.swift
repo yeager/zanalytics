@@ -59,24 +59,36 @@ private struct SidebarView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(report.name)
                     .font(.headline)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(report.category)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
             .padding(.vertical, 5)
             .tag(report.id)
         }
         .navigationTitle("Reports")
+        .navigationSplitViewColumnWidth(min: 260, ideal: 300, max: 380)
         .safeAreaInset(edge: .bottom) {
             VStack(alignment: .leading, spacing: 8) {
                 Divider()
                 Label(statusLabel, systemImage: statusIcon)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("Unofficial helper. Not affiliated with Zscaler.")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
         }
     }
