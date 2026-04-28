@@ -1,0 +1,542 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A00100000000000000000001 /* ZAnalyticsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000001 /* ZAnalyticsApp.swift */; };
+		A00100000000000000000002 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000002 /* AppState.swift */; };
+		A00100000000000000000003 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000003 /* AppPreferences.swift */; };
+		A00100000000000000000004 /* OneAPISettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000004 /* OneAPISettings.swift */; };
+		A00100000000000000000005 /* EndpointTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000005 /* EndpointTemplate.swift */; };
+		A00100000000000000000006 /* ReportModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000006 /* ReportModels.swift */; };
+		A00100000000000000000007 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000007 /* KeychainStore.swift */; };
+		A00100000000000000000008 /* OneAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000008 /* OneAPIClient.swift */; };
+		A00100000000000000000009 /* MockDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000009 /* MockDataProvider.swift */; };
+		A0010000000000000000000A /* ReportExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0020000000000000000000A /* ReportExportService.swift */; };
+		A0010000000000000000000B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0020000000000000000000B /* ContentView.swift */; };
+		A0010000000000000000000C /* SetupWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0020000000000000000000C /* SetupWizardView.swift */; };
+		A0010000000000000000000D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0020000000000000000000D /* SettingsView.swift */; };
+		A0010000000000000000000E /* ReportBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0020000000000000000000E /* ReportBuilderView.swift */; };
+		A0010000000000000000000F /* ReportResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0020000000000000000000F /* ReportResultView.swift */; };
+		A00100000000000000000010 /* ZAnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000010 /* ZAnalyticsTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A00300000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00400000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A00500000000000000000001;
+			remoteInfo = ZAnalytics;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A00200000000000000000001 /* ZAnalyticsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZAnalyticsApp.swift; sourceTree = "<group>"; };
+		A00200000000000000000002 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		A00200000000000000000003 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
+		A00200000000000000000004 /* OneAPISettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneAPISettings.swift; sourceTree = "<group>"; };
+		A00200000000000000000005 /* EndpointTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTemplate.swift; sourceTree = "<group>"; };
+		A00200000000000000000006 /* ReportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportModels.swift; sourceTree = "<group>"; };
+		A00200000000000000000007 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		A00200000000000000000008 /* OneAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneAPIClient.swift; sourceTree = "<group>"; };
+		A00200000000000000000009 /* MockDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataProvider.swift; sourceTree = "<group>"; };
+		A0020000000000000000000A /* ReportExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportExportService.swift; sourceTree = "<group>"; };
+		A0020000000000000000000B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A0020000000000000000000C /* SetupWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupWizardView.swift; sourceTree = "<group>"; };
+		A0020000000000000000000D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A0020000000000000000000E /* ReportBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportBuilderView.swift; sourceTree = "<group>"; };
+		A0020000000000000000000F /* ReportResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportResultView.swift; sourceTree = "<group>"; };
+		A00200000000000000000010 /* ZAnalyticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZAnalyticsTests.swift; sourceTree = "<group>"; };
+		A00200000000000000000011 /* ZAnalytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZAnalytics.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00200000000000000000012 /* ZAnalyticsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZAnalyticsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A00600000000000000000001 /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; path = Resources; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A00700000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00700000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A00800000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A00800000000000000000002 /* ZAnalytics */,
+				A00800000000000000000007 /* ZAnalyticsTests */,
+				A00800000000000000000008 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A00800000000000000000002 /* ZAnalytics */ = {
+			isa = PBXGroup;
+			children = (
+				A00800000000000000000003 /* App */,
+				A00800000000000000000004 /* Models */,
+				A00800000000000000000005 /* Services */,
+				A00800000000000000000006 /* Views */,
+				A00600000000000000000001 /* Resources */,
+			);
+			path = ZAnalytics;
+			sourceTree = "<group>";
+		};
+		A00800000000000000000003 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A00200000000000000000001 /* ZAnalyticsApp.swift */,
+				A00200000000000000000002 /* AppState.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A00800000000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A00200000000000000000003 /* AppPreferences.swift */,
+				A00200000000000000000004 /* OneAPISettings.swift */,
+				A00200000000000000000005 /* EndpointTemplate.swift */,
+				A00200000000000000000006 /* ReportModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A00800000000000000000005 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A00200000000000000000007 /* KeychainStore.swift */,
+				A00200000000000000000008 /* OneAPIClient.swift */,
+				A00200000000000000000009 /* MockDataProvider.swift */,
+				A0020000000000000000000A /* ReportExportService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A00800000000000000000006 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A0020000000000000000000B /* ContentView.swift */,
+				A0020000000000000000000C /* SetupWizardView.swift */,
+				A0020000000000000000000D /* SettingsView.swift */,
+				A0020000000000000000000E /* ReportBuilderView.swift */,
+				A0020000000000000000000F /* ReportResultView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A00800000000000000000007 /* ZAnalyticsTests */ = {
+			isa = PBXGroup;
+			children = (
+				A00200000000000000000010 /* ZAnalyticsTests.swift */,
+			);
+			path = ZAnalyticsTests;
+			sourceTree = "<group>";
+		};
+		A00800000000000000000008 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A00200000000000000000011 /* ZAnalytics.app */,
+				A00200000000000000000012 /* ZAnalyticsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A00500000000000000000001 /* ZAnalytics */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00900000000000000000002 /* Build configuration list for PBXNativeTarget "ZAnalytics" */;
+			buildPhases = (
+				A00A00000000000000000001 /* Sources */,
+				A00700000000000000000001 /* Frameworks */,
+				A00B00000000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ZAnalytics;
+			productName = ZAnalytics;
+			productReference = A00200000000000000000011 /* ZAnalytics.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A00500000000000000000002 /* ZAnalyticsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00900000000000000000003 /* Build configuration list for PBXNativeTarget "ZAnalyticsTests" */;
+			buildPhases = (
+				A00A00000000000000000002 /* Sources */,
+				A00700000000000000000002 /* Frameworks */,
+				A00B00000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A00C00000000000000000001 /* PBXTargetDependency */,
+			);
+			name = ZAnalyticsTests;
+			productName = ZAnalyticsTests;
+			productReference = A00200000000000000000012 /* ZAnalyticsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00400000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					A00500000000000000000001 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					A00500000000000000000002 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = A00500000000000000000001;
+					};
+				};
+			};
+			buildConfigurationList = A00900000000000000000001 /* Build configuration list for PBXProject "ZAnalytics" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A00800000000000000000001;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A00800000000000000000008 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A00500000000000000000001 /* ZAnalytics */,
+				A00500000000000000000002 /* ZAnalyticsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A00B00000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00B00000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A00A00000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00100000000000000000001 /* ZAnalyticsApp.swift in Sources */,
+				A00100000000000000000002 /* AppState.swift in Sources */,
+				A00100000000000000000003 /* AppPreferences.swift in Sources */,
+				A00100000000000000000004 /* OneAPISettings.swift in Sources */,
+				A00100000000000000000005 /* EndpointTemplate.swift in Sources */,
+				A00100000000000000000006 /* ReportModels.swift in Sources */,
+				A00100000000000000000007 /* KeychainStore.swift in Sources */,
+				A00100000000000000000008 /* OneAPIClient.swift in Sources */,
+				A00100000000000000000009 /* MockDataProvider.swift in Sources */,
+				A0010000000000000000000A /* ReportExportService.swift in Sources */,
+				A0010000000000000000000B /* ContentView.swift in Sources */,
+				A0010000000000000000000C /* SetupWizardView.swift in Sources */,
+				A0010000000000000000000D /* SettingsView.swift in Sources */,
+				A0010000000000000000000E /* ReportBuilderView.swift in Sources */,
+				A0010000000000000000000F /* ReportResultView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00A00000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00100000000000000000010 /* ZAnalyticsTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A00C00000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A00500000000000000000001 /* ZAnalytics */;
+			targetProxy = A00300000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A00D00000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A00D00000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		A00D00000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ZAnalytics;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "MIT License";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zanalytics.unofficial;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A00D00000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ZAnalytics;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "MIT License";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zanalytics.unofficial;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A00D00000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zanalytics.unofficial.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZAnalytics.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ZAnalytics";
+			};
+			name = Debug;
+		};
+		A00D00000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zanalytics.unofficial.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZAnalytics.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ZAnalytics";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A00900000000000000000001 /* Build configuration list for PBXProject "ZAnalytics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00D00000000000000000001 /* Debug */,
+				A00D00000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00900000000000000000002 /* Build configuration list for PBXNativeTarget "ZAnalytics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00D00000000000000000003 /* Debug */,
+				A00D00000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00900000000000000000003 /* Build configuration list for PBXNativeTarget "ZAnalyticsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00D00000000000000000005 /* Debug */,
+				A00D00000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A00400000000000000000001 /* Project object */;
+}

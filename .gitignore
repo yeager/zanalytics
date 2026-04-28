@@ -1,0 +1,30 @@
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# User-specific Xcode data
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# SwiftPM/Xcode intermediates
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store
+
+# Secrets and local exports
+*.env
+*.p12
+*.mobileprovision
+*.provisionprofile
+exports/
