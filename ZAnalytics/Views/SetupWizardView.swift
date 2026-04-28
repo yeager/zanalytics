@@ -38,7 +38,7 @@ struct SetupWizardView: View {
                     WizardPage(
                         title: "OneAPI access",
                         systemImage: "person.badge.key",
-                        bodyText: "Create API access in ZIdentity, assign only the RBAC permissions your reporting use case needs, and copy the client ID, client secret or API secret, tenant/cloud information, and base URL. Some analytics categories and cached/repeated-query behavior depend on your tenant and licenses."
+                        bodyText: "Use Zscaler Automation Hub (https://automate.zscaler.com) as the primary OneAPI reference. Create API access in ZIdentity, assign only the RBAC permissions your reporting use case needs, and copy the client ID, client secret or API secret, tenant/cloud information, and base URL. Some analytics categories and cached/repeated-query behavior depend on your tenant and licenses."
                     )
                 default:
                     VStack(alignment: .leading, spacing: 16) {

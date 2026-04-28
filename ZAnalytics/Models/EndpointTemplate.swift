@@ -33,7 +33,7 @@ struct EndpointTemplate: Codable, Identifiable, Hashable {
             displayName: "Web Traffic Analytics",
             category: "Web",
             pathTemplate: "/oneapi/analytics/web/v1/report",
-            notes: "Placeholder for web traffic analytics. Confirm the tenant-specific path in Zscaler OneAPI docs or your admin portal."
+            notes: "Placeholder for web traffic analytics. Confirm the tenant-specific path in Automation Hub or your admin portal."
         ),
         EndpointTemplate(
             key: "threats",

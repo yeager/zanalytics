@@ -22,7 +22,7 @@ private struct OneAPISettingsView: View {
     var body: some View {
         Form {
             Section {
-                Text("Store your ZIdentity-created OneAPI client details here. Client ID, secret, tenant, cloud, vanity domain, and base URL are saved in macOS Keychain.")
+                Text("Use Automation Hub (automate.zscaler.com) to create/verify your OneAPI client details. Client ID, secret, tenant, cloud, vanity domain, and base URL are saved in macOS Keychain.")
                     .foregroundStyle(.secondary)
             }
 
@@ -74,7 +74,7 @@ private struct EndpointTemplateSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Endpoint templates are editable because OneAPI analytics paths and fields may differ by tenant, license, feature rollout, and RBAC. Placeholders are intentionally visible.")
+            Text("Endpoint templates are editable because OneAPI analytics paths and fields may differ by tenant, license, feature rollout, and RBAC. Confirm paths in Automation Hub or tenant-specific docs. Placeholders are intentionally visible.")
                 .foregroundStyle(.secondary)
             List {
                 ForEach($appState.endpointTemplates) { $template in

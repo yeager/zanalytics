@@ -2,7 +2,7 @@
 
 ZAnalytics is a native macOS SwiftUI app for building and exporting analytics reports through configurable Zscaler OneAPI endpoint templates.
 
-This is an unofficial helper. It is not affiliated with, endorsed by, or sponsored by Zscaler.
+This is an unofficial helper. It is not affiliated with, endorsed by, or sponsored by Zscaler. Use Zscaler Automation Hub as the primary documentation source: https://automate.zscaler.com
 
 ## Features
 
@@ -15,15 +15,16 @@ This is an unofficial helper. It is not affiliated with, endorsed by, or sponsor
 
 ## OneAPI Notes
 
-Public docs and product behavior may vary by tenant. Current assumptions used by this app:
+Public docs and product behavior may vary by tenant. Current assumptions used by this app are based on Zscaler Automation Hub (`https://automate.zscaler.com`):
 
 - OneAPI access is created in ZIdentity.
+- Automation Hub describes creating API roles/clients in ZIdentity, authenticating with client secrets or signed JWTs, then calling Zscaler APIs with the resulting token.
 - OAuth2 client credentials are supported with client secrets/API secrets.
 - Signed JWT authentication is represented in the client abstraction, but local signing setup is intentionally not implemented yet.
 - Analytics categories may include Web traffic, cybersecurity, SaaS security, Zero Trust Firewall, IoT, Shadow IT, ZPA, and ZDX, depending on licensing and RBAC.
 - Request IDs, RBAC, retry/rate-limit handling, and cache/repeated-query behavior should be expected.
 
-Before using live mode, confirm the base URL, token path, analytics endpoint paths, allowed fields, filters, and dimensions against your tenant documentation or admin portal. The default endpoint paths are placeholders.
+Before using live mode, confirm the base URL, token path, analytics endpoint paths, allowed fields, filters, and dimensions against Automation Hub, your tenant documentation, or your admin portal. The default endpoint paths are placeholders.
 
 ## Setup
 
