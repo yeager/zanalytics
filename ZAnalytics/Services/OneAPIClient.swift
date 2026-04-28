@@ -92,7 +92,7 @@ final class OneAPIClient {
             URLQueryItem(name: "client_id", value: settings.clientID),
             URLQueryItem(name: "client_secret", value: settings.clientSecret)
         ]
-        let audience = settings.audience.trimmingCharacters(in: .whitespacesAndNewlines)
+        let audience = settings.normalizedAudience
         if !audience.isEmpty {
             queryItems.append(URLQueryItem(name: "audience", value: audience))
         }

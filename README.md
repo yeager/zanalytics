@@ -69,7 +69,7 @@ Settings include:
 - Vanity domain
 - Cloud name
 - Tenant ID
-- OAuth audience
+- OAuth audience (defaults to `https://api.zscaler.com`, matching the Zscaler SDK)
 - Authentication method
 - REST/GraphQL endpoint templates
 - GraphQL query and variables JSON
@@ -86,7 +86,7 @@ ZAnalytics never displays or logs the raw token value.
 
 1. Create or verify the API role/client in ZIdentity.
 2. Confirm the tenant vanity domain and cloud.
-3. Confirm OAuth audience, token path, and supported authentication method.
+3. Confirm OAuth audience (`https://api.zscaler.com` for the standard OneAPI client-secret flow), token path, and supported authentication method.
 4. Confirm whether the analytics use case is exposed through REST, GraphQL, or product-specific APIs for your tenant.
 5. Copy endpoint paths, GraphQL queries, variables, fields, filters, dimensions, and RBAC requirements into **Settings > Endpoints**.
 6. Use **Authenticate** first.

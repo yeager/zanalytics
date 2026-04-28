@@ -41,15 +41,26 @@ final class ZAnalyticsTests: XCTestCase {
     }
 
     func testTokenInspectorExtractsExpiryAndScopesFromJWT() throws {
-        let payload = #"{"exp":1893456000,"scope":"read:analytics write:reports","sub":"client-1","aud":"zscaler-oneapi"}"#
+        let payload = #"{"exp":1893456000,"scope":"read:analytics write:reports","sub":"client-1","aud":"https://api.zscaler.com"}"#
         let token = "header.\(Self.base64URL(payload)).signature"
 
         let metadata = TokenInspector.inspect(token, fallbackExpiry: Date(timeIntervalSince1970: 0))
 
         XCTAssertEqual(metadata.scopes, ["read:analytics", "write:reports"])
         XCTAssertEqual(metadata.subject, "client-1")
-        XCTAssertEqual(metadata.audience, "zscaler-oneapi")
+        XCTAssertEqual(metadata.audience, "https://api.zscaler.com")
         XCTAssertEqual(metadata.expiresAt, Date(timeIntervalSince1970: 1_893_456_000))
+    }
+
+    func testOneAPISettingsNormalizesLegacyAudienceDefault() {
+        var settings = OneAPISettings.empty
+        XCTAssertEqual(settings.normalizedAudience, "https://api.zscaler.com")
+
+        settings.audience = "zscaler-oneapi"
+        XCTAssertEqual(settings.normalizedAudience, "https://api.zscaler.com")
+
+        settings.audience = "custom-audience"
+        XCTAssertEqual(settings.normalizedAudience, "custom-audience")
     }
 
     func testGraphQLRequestBodyIncludesQueryAndMergedVariables() throws {

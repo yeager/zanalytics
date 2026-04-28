@@ -19,7 +19,7 @@ struct OneAPISettings: Codable, Equatable {
         vanityDomain: "",
         cloudName: "",
         tenantID: "",
-        audience: "zscaler-oneapi",
+        audience: "https://api.zscaler.com",
         authMethod: .clientSecret
     )
 
@@ -36,6 +36,14 @@ struct OneAPISettings: Codable, Equatable {
             return cloud == "zscaler" ? "https://api.zsapi.net" : "https://api.\(cloud).zsapi.net"
         }
         return trimmed.hasSuffix("/") ? String(trimmed.dropLast()) : trimmed
+    }
+
+    var normalizedAudience: String {
+        let trimmed = audience.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty || trimmed == "zscaler-oneapi" {
+            return "https://api.zscaler.com"
+        }
+        return trimmed
     }
 }
 

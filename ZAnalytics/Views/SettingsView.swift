@@ -35,6 +35,7 @@ private struct OneAPISettingsView: View {
                 TextField("Client ID", text: $appState.secureSettings.clientID)
                 SecureField("Client secret or API secret", text: $appState.secureSettings.clientSecret)
                 TextField("Audience", text: $appState.secureSettings.audience)
+                    .help("Default from the Zscaler SDK: https://api.zscaler.com. Older saved value zscaler-oneapi is normalized automatically.")
             }
 
             Section("Tenant") {
