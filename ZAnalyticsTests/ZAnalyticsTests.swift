@@ -39,4 +39,125 @@ final class ZAnalyticsTests: XCTestCase {
         XCTAssertFalse(result.summaryCards.isEmpty)
         XCTAssertTrue(result.requestID.hasPrefix("mock-"))
     }
+
+    func testTokenInspectorExtractsExpiryAndScopesFromJWT() throws {
+        let payload = #"{"exp":1893456000,"scope":"read:analytics write:reports","sub":"client-1","aud":"zscaler-oneapi"}"#
+        let token = "header.\(Self.base64URL(payload)).signature"
+
+        let metadata = TokenInspector.inspect(token, fallbackExpiry: Date(timeIntervalSince1970: 0))
+
+        XCTAssertEqual(metadata.scopes, ["read:analytics", "write:reports"])
+        XCTAssertEqual(metadata.subject, "client-1")
+        XCTAssertEqual(metadata.audience, "zscaler-oneapi")
+        XCTAssertEqual(metadata.expiresAt, Date(timeIntervalSince1970: 1_893_456_000))
+    }
+
+    func testGraphQLRequestBodyIncludesQueryAndMergedVariables() throws {
+        let definition = ReportCatalog.defaults.first { $0.id == "web-usage" }!
+        let request = ReportRequest(definition: definition)
+        let template = EndpointTemplate(
+            key: "web",
+            displayName: "Web GraphQL",
+            category: "Web",
+            transport: .graphql,
+            pathTemplate: "/unused",
+            graphqlQuery: "query Test($limit: Int) { webAnalytics(limit: $limit) { rows } }",
+            graphqlVariablesJSON: #"{"tenantHint":"demo"}"#,
+            notes: "test"
+        )
+
+        let data = try GraphQLRequestBuilder.body(for: request, template: template)
+        let object = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let variables = object?["variables"] as? [String: Any]
+
+        XCTAssertEqual(object?["query"] as? String, template.graphqlQuery)
+        XCTAssertEqual(variables?["tenantHint"] as? String, "demo")
+        XCTAssertEqual(variables?["limit"] as? Int, request.limit)
+        XCTAssertEqual(variables?["report"] as? String, "web-usage")
+        XCTAssertNotNil(variables?["dateRange"] as? [String: Any])
+    }
+
+    func testGraphQLVariablesOverrideDefaultReportVariables() throws {
+        let definition = ReportCatalog.defaults.first { $0.id == "web-usage" }!
+        let request = ReportRequest(definition: definition)
+        let template = EndpointTemplate(
+            key: "web",
+            displayName: "Web GraphQL",
+            category: "Web",
+            transport: .graphql,
+            pathTemplate: "/unused",
+            graphqlQuery: "query Test($limit: Int) { webAnalytics(limit: $limit) { rows } }",
+            graphqlVariablesJSON: #"{"limit":12,"customFlag":true}"#,
+            notes: "test"
+        )
+
+        let data = try GraphQLRequestBuilder.body(for: request, template: template)
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let variables = try XCTUnwrap(object["variables"] as? [String: Any])
+
+        XCTAssertEqual(variables["limit"] as? Int, 12)
+        XCTAssertEqual(variables["customFlag"] as? Bool, true)
+    }
+
+    func testGraphQLResponseParserFindsNestedDataRows() {
+        let json = """
+        {
+          "data": {
+            "webAnalytics": {
+              "rows": [
+                { "category": "Business", "requests": 25 },
+                { "category": "Unknown", "requests": 8 }
+              ]
+            }
+          }
+        }
+        """
+        let rows = OneAPIResponseParser.rows(from: Data(json.utf8))
+
+        XCTAssertEqual(rows.count, 2)
+        XCTAssertEqual(rows.first?["category"], .string("Business"))
+        XCTAssertEqual(rows.first?["requests"], .int(25))
+    }
+
+    func testGraphQLResponseParserKeepsEmptyNestedRowsEmpty() {
+        let json = #"{"data":{"webAnalytics":{"rows":[]}}}"#
+        let rows = OneAPIResponseParser.rows(from: Data(json.utf8))
+
+        XCTAssertTrue(rows.isEmpty)
+    }
+
+    func testHTMLRendererIncludesTemplateChartsSectionsAndDisclaimer() {
+        let result = ReportResult(
+            reportName: "Threat Overview",
+            endpointPath: "/mock",
+            requestID: "test",
+            dateRangeDescription: "Today",
+            summaryCards: [SummaryCard(title: "Rows", value: "2", detail: "Returned records")],
+            rows: [
+                ["severity": .string("Critical"), "threat_type": .string("Phishing"), "detections": .int(42)],
+                ["severity": .string("High"), "threat_type": .string("Malware"), "detections": .int(18)]
+            ],
+            rawJSON: "{}",
+            presentationTemplate: .executiveSummary
+        )
+
+        let html = HTMLReportRenderer.html(for: result, template: .customerSuccessReview)
+
+        XCTAssertTrue(html.contains("Customer Success Review"))
+        XCTAssertTrue(html.contains("Top Values"))
+        XCTAssertTrue(html.contains("Trend View"))
+        XCTAssertTrue(html.contains("<svg role=\"img\" aria-label=\"Trend line chart\""))
+        XCTAssertTrue(html.contains("Severity and Category Sections"))
+        XCTAssertTrue(html.contains("Methodology"))
+        XCTAssertTrue(html.contains("unofficial helper"))
+        XCTAssertFalse(html.contains("https://cdn"))
+    }
+
+    private static func base64URL(_ string: String) -> String {
+        string.data(using: .utf8)!
+            .base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
 }

@@ -30,11 +30,18 @@ private struct ResultToolbar: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("Report Output")
                     .font(.headline)
-                Text("Export JSON, CSV, or a printable HTML report.")
+                Text("Export JSON, CSV, or an offline HTML report with charts.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
+            Picker("HTML Template", selection: $appState.selectedHTMLTemplate) {
+                ForEach(ReportPresentationTemplate.allCases) { template in
+                    Text(template.label).tag(template)
+                }
+            }
+            .frame(width: 230)
+            .disabled(appState.latestResult == nil)
             Menu {
                 ForEach(ExportFormat.allCases) { format in
                     Button(format.label) {

@@ -52,6 +52,28 @@ private struct OneAPISettingsView: View {
                     } label: {
                         Label("Save to Keychain", systemImage: "lock")
                     }
+                    Button {
+                        Task { await appState.authenticateOneAPI() }
+                    } label: {
+                        if appState.isAuthenticating {
+                            ProgressView().controlSize(.small)
+                            Text("Authenticating")
+                        } else {
+                            Label("Authenticate", systemImage: "key.viewfinder")
+                        }
+                    }
+                    .disabled(appState.isAuthenticating || appState.isTestingConnection)
+                    Button {
+                        Task { await appState.testOneAPIConnection() }
+                    } label: {
+                        if appState.isTestingConnection {
+                            ProgressView().controlSize(.small)
+                            Text("Testing")
+                        } else {
+                            Label("Test Connection", systemImage: "network")
+                        }
+                    }
+                    .disabled(appState.isAuthenticating || appState.isTestingConnection)
                     Button(role: .destructive) {
                         appState.clearSecureSettings()
                     } label: {
@@ -64,6 +86,21 @@ private struct OneAPISettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                if let authStatus = appState.authStatusMessage {
+                    Label(authStatus, systemImage: "checkmark.seal")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                        .textSelection(.enabled)
+                }
+                if let connectionStatus = appState.connectionStatusMessage {
+                    Label(connectionStatus, systemImage: "checkmark.icloud")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                        .textSelection(.enabled)
+                }
+                Text("Authenticate only requests an OAuth token and decodes visible JWT metadata such as expiry and scopes when present. Test Connection also calls the currently selected report endpoint with a tiny limit so you can separate token issues from endpoint/RBAC issues.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -74,7 +111,7 @@ private struct EndpointTemplateSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Endpoint templates are editable because OneAPI analytics paths and fields may differ by tenant, license, feature rollout, and RBAC. Confirm paths in Automation Hub or tenant-specific docs. Placeholders are intentionally visible.")
+            Text("Endpoint templates are editable because OneAPI analytics paths, REST vs GraphQL availability, fields, tenant features, license, rollout, and RBAC can vary. Confirm paths and query shapes in Automation Hub or tenant-specific docs.")
                 .foregroundStyle(.secondary)
             List {
                 ForEach($appState.endpointTemplates) { $template in
@@ -82,19 +119,48 @@ private struct EndpointTemplateSettingsView: View {
                         HStack {
                             TextField("Name", text: $template.displayName)
                                 .font(.headline)
-                            Picker("Method", selection: $template.method) {
-                                ForEach(HTTPMethod.allCases) { method in
-                                    Text(method.rawValue).tag(method)
+                            Picker("Transport", selection: $template.transport) {
+                                ForEach(APITransport.allCases) { transport in
+                                    Text(transport.rawValue).tag(transport)
                                 }
                             }
-                            .frame(width: 150)
+                            .frame(width: 170)
+                            if template.transport == .rest {
+                                Picker("Method", selection: $template.method) {
+                                    ForEach(HTTPMethod.allCases) { method in
+                                        Text(method.rawValue).tag(method)
+                                    }
+                                }
+                                .frame(width: 150)
+                            }
                         }
                         HStack {
                             TextField("Key", text: $template.key)
                                 .frame(width: 120)
                             TextField("Category", text: $template.category)
                                 .frame(width: 160)
-                            TextField("Path template", text: $template.pathTemplate)
+                            if template.transport == .rest {
+                                TextField("REST path template", text: $template.pathTemplate)
+                            } else {
+                                TextField("GraphQL endpoint path", text: $template.graphqlEndpointPath)
+                            }
+                        }
+                        if template.transport == .graphql {
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("GraphQL Query")
+                                    .font(.caption.weight(.semibold))
+                                TextField("query { ... }", text: $template.graphqlQuery, axis: .vertical)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .lineLimit(5...12)
+                                Text("Variables JSON")
+                                    .font(.caption.weight(.semibold))
+                                TextField("{ \"limit\": 100 }", text: $template.graphqlVariablesJSON, axis: .vertical)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .lineLimit(2...8)
+                                Text("The app sends POST { query, variables }. Built-in report variables are included automatically, and values in this JSON object override them.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                         TextField("Notes", text: $template.notes, axis: .vertical)
                             .lineLimit(2...4)
@@ -104,7 +170,7 @@ private struct EndpointTemplateSettingsView: View {
             }
             HStack {
                 Button {
-                    appState.endpointTemplates.append(EndpointTemplate(key: "custom", displayName: "Custom Analytics", category: "Custom", pathTemplate: "/oneapi/analytics/custom/v1/report", notes: "Replace with your tenant-confirmed endpoint path."))
+                    appState.endpointTemplates.append(EndpointTemplate(key: "custom", displayName: "Custom Analytics", category: "Custom", pathTemplate: "/oneapi/analytics/custom/v1/report", graphqlQuery: EndpointTemplate.defaultGraphQLQuery(operationName: "customAnalytics"), notes: "Replace with your tenant-confirmed endpoint path or GraphQL query."))
                 } label: {
                     Label("Add Template", systemImage: "plus")
                 }

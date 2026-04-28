@@ -6,11 +6,41 @@ struct ReportDefinition: Codable, Identifiable, Hashable {
     var category: String
     var endpointKey: String
     var summary: String
+    var defaultPresentationTemplate: ReportPresentationTemplate
+    var templateGuidance: String
     var defaultFields: [String]
     var defaultDimensions: [String]
     var defaultFilters: [ReportFilter]
     var defaultSort: String
     var defaultLimit: Int
+
+    init(
+        id: String,
+        name: String,
+        category: String,
+        endpointKey: String,
+        summary: String,
+        defaultPresentationTemplate: ReportPresentationTemplate = .technicalDetail,
+        templateGuidance: String = "Use Technical Detail for validation and handoff; switch to Executive Summary or Customer Success Review when the audience needs less raw detail.",
+        defaultFields: [String],
+        defaultDimensions: [String],
+        defaultFilters: [ReportFilter],
+        defaultSort: String,
+        defaultLimit: Int
+    ) {
+        self.id = id
+        self.name = name
+        self.category = category
+        self.endpointKey = endpointKey
+        self.summary = summary
+        self.defaultPresentationTemplate = defaultPresentationTemplate
+        self.templateGuidance = templateGuidance
+        self.defaultFields = defaultFields
+        self.defaultDimensions = defaultDimensions
+        self.defaultFilters = defaultFilters
+        self.defaultSort = defaultSort
+        self.defaultLimit = defaultLimit
+    }
 }
 
 struct ReportFilter: Codable, Identifiable, Hashable {
@@ -31,6 +61,7 @@ struct ReportRequest: Codable, Equatable {
     var filters: [ReportFilter]
     var sort: String
     var limit: Int
+    var presentationTemplate: ReportPresentationTemplate
 
     init(definition: ReportDefinition) {
         self.reportID = definition.id
@@ -43,6 +74,7 @@ struct ReportRequest: Codable, Equatable {
         self.filters = definition.defaultFilters
         self.sort = definition.defaultSort
         self.limit = definition.defaultLimit
+        self.presentationTemplate = definition.defaultPresentationTemplate
     }
 
     var fields: [String] {
@@ -82,6 +114,7 @@ struct ReportResult: Codable, Identifiable, Equatable {
     var summaryCards: [SummaryCard]
     var rows: [[String: ReportValue]]
     var rawJSON: String
+    var presentationTemplate: ReportPresentationTemplate
 
     init(
         id: UUID = UUID(),
@@ -92,7 +125,8 @@ struct ReportResult: Codable, Identifiable, Equatable {
         dateRangeDescription: String,
         summaryCards: [SummaryCard],
         rows: [[String: ReportValue]],
-        rawJSON: String
+        rawJSON: String,
+        presentationTemplate: ReportPresentationTemplate = .technicalDetail
     ) {
         self.id = id
         self.reportName = reportName
@@ -103,6 +137,7 @@ struct ReportResult: Codable, Identifiable, Equatable {
         self.summaryCards = summaryCards
         self.rows = rows
         self.rawJSON = rawJSON
+        self.presentationTemplate = presentationTemplate
     }
 }
 
@@ -165,6 +200,8 @@ enum ReportCatalog {
             category: "Executive",
             endpointKey: "threats",
             summary: "Board-friendly view of blocked threats, risky destinations, affected users, and policy outcomes.",
+            defaultPresentationTemplate: .executiveSummary,
+            templateGuidance: "Best exported as Executive Summary with KPI cards, severity callouts, and a compact evidence table.",
             defaultFields: ["threat_count", "blocked_count", "allowed_count", "top_category", "top_location"],
             defaultDimensions: ["day", "location"],
             defaultFilters: [],
@@ -177,6 +214,8 @@ enum ReportCatalog {
             category: "Web",
             endpointKey: "web",
             summary: "Shows top web categories, bandwidth, users, locations, and policy actions for usage reviews.",
+            defaultPresentationTemplate: .customerSuccessReview,
+            templateGuidance: "Customer Success Review works well for usage adoption, policy outcomes, and category trends.",
             defaultFields: ["requests", "bandwidth_mb", "blocked", "allowed", "category"],
             defaultDimensions: ["category", "location"],
             defaultFilters: [],
@@ -189,6 +228,8 @@ enum ReportCatalog {
             category: "SaaS",
             endpointKey: "saas",
             summary: "Highlights discovered SaaS apps, risk levels, user adoption, and unsanctioned usage signals.",
+            defaultPresentationTemplate: .customerSuccessReview,
+            templateGuidance: "Use Customer Success Review for adoption and governance conversations; switch to Technical Detail for app-by-app remediation.",
             defaultFields: ["application", "risk_score", "users", "requests", "sanctioned"],
             defaultDimensions: ["application", "risk_level"],
             defaultFilters: [],
@@ -201,6 +242,8 @@ enum ReportCatalog {
             category: "Cybersecurity",
             endpointKey: "threats",
             summary: "Operational view of malware, phishing, C2, and other detections grouped by severity and action.",
+            defaultPresentationTemplate: .technicalDetail,
+            templateGuidance: "Technical Detail keeps severity groups and row-level evidence prominent for security operations.",
             defaultFields: ["threat_type", "severity", "detections", "blocked", "users"],
             defaultDimensions: ["threat_type", "severity"],
             defaultFilters: [],
@@ -213,6 +256,8 @@ enum ReportCatalog {
             category: "Firewall",
             endpointKey: "firewall",
             summary: "Summarizes Zero Trust Firewall sessions by application, port, action, location, and volume.",
+            defaultPresentationTemplate: .technicalDetail,
+            templateGuidance: "Technical Detail is the safest default for network activity because ports, applications, and actions need traceability.",
             defaultFields: ["sessions", "bytes", "application", "destination_port", "action"],
             defaultDimensions: ["application", "action"],
             defaultFilters: [],
@@ -225,6 +270,8 @@ enum ReportCatalog {
             category: "Private Access",
             endpointKey: "zpa",
             summary: "Tracks private app access, users, connectors, policy actions, and denied attempts.",
+            defaultPresentationTemplate: .customerSuccessReview,
+            templateGuidance: "Customer Success Review highlights adoption, denied access, and connector/application patterns for service reviews.",
             defaultFields: ["application_segment", "users", "sessions", "denied", "connector_group"],
             defaultDimensions: ["application_segment", "connector_group"],
             defaultFilters: [],
@@ -237,6 +284,8 @@ enum ReportCatalog {
             category: "Digital Experience",
             endpointKey: "zdx",
             summary: "Summarizes user experience scores, device health, application experience, and network issues.",
+            defaultPresentationTemplate: .executiveSummary,
+            templateGuidance: "Executive Summary keeps experience score, impacted users, and trend signals visible for leadership review.",
             defaultFields: ["experience_score", "users_impacted", "application", "issue_type", "location"],
             defaultDimensions: ["application", "location"],
             defaultFilters: [],
@@ -244,6 +293,33 @@ enum ReportCatalog {
             defaultLimit: 150
         )
     ]
+}
+
+enum ReportPresentationTemplate: String, Codable, CaseIterable, Identifiable {
+    case executiveSummary
+    case technicalDetail
+    case customerSuccessReview
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .executiveSummary: return "Executive Summary"
+        case .technicalDetail: return "Technical Detail"
+        case .customerSuccessReview: return "Customer Success Review"
+        }
+    }
+
+    var shortDescription: String {
+        switch self {
+        case .executiveSummary:
+            return "Outcome-focused narrative, KPI cards, and concise evidence."
+        case .technicalDetail:
+            return "Operational detail with severity/category grouping and full rows."
+        case .customerSuccessReview:
+            return "Adoption, value, trend, and follow-up sections for service reviews."
+        }
+    }
 }
 
 extension String {

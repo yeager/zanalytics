@@ -10,6 +10,7 @@ struct ReportBuilderView: View {
                 DateRangeSection()
                 FieldsSection()
                 FiltersSection()
+                PresentationSection()
                 RunSection()
             }
             .padding(20)
@@ -28,6 +29,9 @@ private struct ReportDescriptionView: View {
             Text(report.summary)
                 .foregroundStyle(.secondary)
             Label("Default category: \(report.category)", systemImage: "tag")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(report.templateGuidance)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -123,6 +127,26 @@ private struct FiltersSection: View {
     }
 }
 
+private struct PresentationSection: View {
+    @EnvironmentObject private var appState: AppState
+
+    var body: some View {
+        GroupBox("HTML Presentation") {
+            VStack(alignment: .leading, spacing: 8) {
+                Picker("Template", selection: $appState.selectedHTMLTemplate) {
+                    ForEach(ReportPresentationTemplate.allCases) { template in
+                        Text(template.label).tag(template)
+                    }
+                }
+                Text(appState.selectedHTMLTemplate.shortDescription)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.top, 4)
+        }
+    }
+}
+
 private struct RunSection: View {
     @EnvironmentObject private var appState: AppState
 
@@ -133,7 +157,7 @@ private struct RunSection: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(template.displayName)
                             .font(.headline)
-                        Text("\(template.method.rawValue) \(template.pathTemplate)")
+                        Text(endpointDescription(template))
                             .font(.system(.body, design: .monospaced))
                         Text(template.notes)
                             .font(.caption)
@@ -166,6 +190,15 @@ private struct RunSection: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        }
+    }
+
+    private func endpointDescription(_ template: EndpointTemplate) -> String {
+        switch template.transport {
+        case .rest:
+            return "\(template.transport.rawValue) \(template.method.rawValue) \(template.pathTemplate)"
+        case .graphql:
+            return "\(template.transport.rawValue) POST \(template.graphqlEndpointPath)"
         }
     }
 }

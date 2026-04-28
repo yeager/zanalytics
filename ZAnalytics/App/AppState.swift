@@ -9,7 +9,12 @@ final class AppState: ObservableObject {
     @Published var selectedReport: ReportDefinition
     @Published var reportRequest: ReportRequest
     @Published var latestResult: ReportResult?
+    @Published var selectedHTMLTemplate: ReportPresentationTemplate
     @Published var isLoading = false
+    @Published var isAuthenticating = false
+    @Published var isTestingConnection = false
+    @Published var authStatusMessage: String?
+    @Published var connectionStatusMessage: String?
     @Published var statusMessage: String?
     @Published var errorMessage: String?
 
@@ -28,6 +33,7 @@ final class AppState: ObservableObject {
         self.endpointTemplates = preferenceStore.loadEndpointTemplates()
         self.selectedReport = ReportCatalog.defaults[0]
         self.reportRequest = ReportRequest(definition: ReportCatalog.defaults[0])
+        self.selectedHTMLTemplate = ReportCatalog.defaults[0].defaultPresentationTemplate
         self.secureSettings = (try? settingsStore.load()) ?? .empty
     }
 
@@ -72,6 +78,7 @@ final class AppState: ObservableObject {
     func selectReport(_ report: ReportDefinition) {
         selectedReport = report
         reportRequest = ReportRequest(definition: report)
+        selectedHTMLTemplate = report.defaultPresentationTemplate
         latestResult = nil
         errorMessage = nil
         statusMessage = nil
@@ -85,13 +92,54 @@ final class AppState: ObservableObject {
 
         do {
             if preferences.mockModeEnabled {
+                reportRequest.presentationTemplate = selectedHTMLTemplate
                 latestResult = MockDataProvider.result(for: reportRequest, definition: selectedReport)
             } else {
                 try validateLiveSettings()
+                reportRequest.presentationTemplate = selectedHTMLTemplate
                 let client = OneAPIClient(settings: secureSettings)
                 latestResult = try await client.runReport(reportRequest, using: endpointTemplates)
             }
             statusMessage = "Report generated at \(DateFormatter.shortDateTime.string(from: Date()))."
+        } catch {
+            errorMessage = ReportErrorPresenter.message(for: error)
+        }
+    }
+
+    func authenticateOneAPI() async {
+        isAuthenticating = true
+        errorMessage = nil
+        authStatusMessage = nil
+        defer { isAuthenticating = false }
+
+        do {
+            try validateLiveSettings()
+            try settingsStore.save(secureSettings)
+            let client = OneAPIClient(settings: secureSettings)
+            let result = try await client.authenticate()
+            authStatusMessage = result.statusText
+            statusMessage = "OneAPI authentication succeeded."
+        } catch {
+            errorMessage = ReportErrorPresenter.message(for: error)
+        }
+    }
+
+    func testOneAPIConnection() async {
+        isTestingConnection = true
+        errorMessage = nil
+        connectionStatusMessage = nil
+        defer { isTestingConnection = false }
+
+        do {
+            try validateLiveSettings()
+            try settingsStore.save(secureSettings)
+            var probeRequest = reportRequest
+            probeRequest.limit = min(max(probeRequest.limit, 1), 5)
+            probeRequest.presentationTemplate = selectedHTMLTemplate
+            let client = OneAPIClient(settings: secureSettings)
+            let result = try await client.testConnection(probeRequest, using: endpointTemplates)
+            connectionStatusMessage = "Endpoint OK | rows: \(result.rowCount) | request ID: \(result.requestID) | path: \(result.endpointPath)"
+            statusMessage = "OneAPI endpoint test succeeded at \(DateFormatter.shortDateTime.string(from: result.generatedAt))."
         } catch {
             errorMessage = ReportErrorPresenter.message(for: error)
         }
@@ -104,7 +152,7 @@ final class AppState: ObservableObject {
         }
 
         do {
-            let url = try exportService.export(latestResult, as: format)
+            let url = try exportService.export(latestResult, as: format, template: selectedHTMLTemplate)
             statusMessage = "Exported \(format.label) to \(url.path)."
             return url
         } catch {

@@ -31,6 +31,10 @@ struct OneAPISettings: Codable, Equatable {
 
     var normalizedBaseURL: String {
         let trimmed = baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cloud = cloudName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !cloud.isEmpty && (trimmed.isEmpty || trimmed == "https://api.zsapi.net") {
+            return cloud == "zscaler" ? "https://api.zsapi.net" : "https://api.\(cloud).zsapi.net"
+        }
         return trimmed.hasSuffix("/") ? String(trimmed.dropLast()) : trimmed
     }
 }

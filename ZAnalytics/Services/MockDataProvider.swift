@@ -14,7 +14,8 @@ enum MockDataProvider {
             dateRangeDescription: "\(request.startDate.formatted(date: .abbreviated, time: .omitted)) - \(request.endDate.formatted(date: .abbreviated, time: .omitted))",
             summaryCards: cards,
             rows: rows,
-            rawJSON: rawJSON
+            rawJSON: rawJSON,
+            presentationTemplate: request.presentationTemplate
         )
     }
 

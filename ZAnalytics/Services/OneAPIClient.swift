@@ -17,16 +17,19 @@ final class OneAPIClient {
 
         let requestID = UUID().uuidString
         let token = try await accessToken()
-        let path = template.pathTemplate.replacingOccurrences(of: "{tenantId}", with: settings.tenantID)
+        let pathTemplate = template.transport == .graphql ? template.graphqlEndpointPath : template.pathTemplate
+        let path = pathTemplate.replacingOccurrences(of: "{tenantId}", with: settings.tenantID)
         let url = try makeURL(path: path)
         var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = template.method.rawValue
+        urlRequest.httpMethod = template.transport == .graphql ? HTTPMethod.post.rawValue : template.method.rawValue
         urlRequest.setValue("Bearer \(token.value)", forHTTPHeaderField: "Authorization")
         urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue(requestID, forHTTPHeaderField: "X-Request-ID")
 
-        if template.method == .post {
+        if template.transport == .graphql {
+            urlRequest.httpBody = try GraphQLRequestBuilder.body(for: request, template: template)
+        } else if template.method == .post {
             urlRequest.httpBody = try JSONSerialization.data(withJSONObject: request.payload(), options: [.sortedKeys])
         }
 
@@ -40,7 +43,23 @@ final class OneAPIClient {
             dateRangeDescription: "\(request.startDate.formatted(date: .abbreviated, time: .omitted)) - \(request.endDate.formatted(date: .abbreviated, time: .omitted))",
             summaryCards: OneAPIResponseParser.summaryCards(from: rows),
             rows: rows,
-            rawJSON: rawJSON
+            rawJSON: rawJSON,
+            presentationTemplate: request.presentationTemplate
+        )
+    }
+
+    func authenticate() async throws -> AuthResult {
+        let token = try await accessToken()
+        return AuthResult(token: token, metadata: TokenInspector.inspect(token.value, fallbackExpiry: token.expiresAt))
+    }
+
+    func testConnection(_ request: ReportRequest, using templates: [EndpointTemplate]) async throws -> ConnectionTestResult {
+        let result = try await runReport(request, using: templates)
+        return ConnectionTestResult(
+            requestID: result.requestID,
+            endpointPath: result.endpointPath,
+            rowCount: result.rows.count,
+            generatedAt: result.generatedAt
         )
     }
 
@@ -60,7 +79,7 @@ final class OneAPIClient {
     }
 
     private func requestClientSecretToken() async throws -> AccessToken {
-        let tokenURL = try makeURL(path: settings.tokenPath)
+        let tokenURL = try makeTokenURL()
         var request = URLRequest(url: tokenURL)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -68,12 +87,16 @@ final class OneAPIClient {
         request.setValue(UUID().uuidString, forHTTPHeaderField: "X-Request-ID")
 
         var components = URLComponents()
-        components.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "grant_type", value: "client_credentials"),
             URLQueryItem(name: "client_id", value: settings.clientID),
-            URLQueryItem(name: "client_secret", value: settings.clientSecret),
-            URLQueryItem(name: "audience", value: settings.audience)
+            URLQueryItem(name: "client_secret", value: settings.clientSecret)
         ]
+        let audience = settings.audience.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !audience.isEmpty {
+            queryItems.append(URLQueryItem(name: "audience", value: audience))
+        }
+        components.queryItems = queryItems
         request.httpBody = components.percentEncodedQuery?.data(using: .utf8)
 
         let data = try await sendWithRetry(request)
@@ -138,11 +161,116 @@ final class OneAPIClient {
         }
         return base.appendingPathComponent(path.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
     }
+
+    private func makeTokenURL() throws -> URL {
+        if settings.tokenPath.hasPrefix("http"), let url = URL(string: settings.tokenPath) {
+            return url
+        }
+
+        let vanityDomain = settings.vanityDomain.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !vanityDomain.isEmpty {
+            let host = vanityDomain.contains(".") ? vanityDomain : "\(vanityDomain).zslogin.net"
+            guard let base = URL(string: "https://\(host)") else {
+                throw OneAPIError.invalidBaseURL
+            }
+            return base.appendingPathComponent(settings.tokenPath.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
+        }
+
+        return try makeURL(path: settings.tokenPath)
+    }
 }
 
 struct AccessToken {
     let value: String
     let expiresAt: Date
+}
+
+struct AuthResult {
+    let token: AccessToken
+    let metadata: TokenMetadata
+
+    var statusText: String {
+        var parts = ["Token OK"]
+        parts.append("expires: \(metadata.expiryDescription)")
+        if !metadata.scopes.isEmpty {
+            parts.append("scopes: \(metadata.scopes.joined(separator: ", "))")
+        } else {
+            parts.append("scopes: not present in token")
+        }
+        if let subject = metadata.subject, !subject.isEmpty {
+            parts.append("subject: \(subject)")
+        }
+        return parts.joined(separator: " | ")
+    }
+}
+
+struct ConnectionTestResult {
+    let requestID: String
+    let endpointPath: String
+    let rowCount: Int
+    let generatedAt: Date
+}
+
+struct TokenMetadata {
+    let expiresAt: Date?
+    let scopes: [String]
+    let subject: String?
+    let issuer: String?
+    let audience: String?
+
+    var expiryDescription: String {
+        guard let expiresAt else { return "unknown" }
+        return expiresAt.formatted(date: .abbreviated, time: .shortened)
+    }
+}
+
+enum TokenInspector {
+    static func inspect(_ token: String, fallbackExpiry: Date) -> TokenMetadata {
+        let parts = token.split(separator: ".")
+        guard parts.count >= 2,
+              let payloadData = decodeBase64URL(String(parts[1])),
+              let json = try? JSONSerialization.jsonObject(with: payloadData) as? [String: Any] else {
+            return TokenMetadata(expiresAt: fallbackExpiry, scopes: [], subject: nil, issuer: nil, audience: nil)
+        }
+
+        let expiry = (json["exp"] as? TimeInterval).map { Date(timeIntervalSince1970: $0) } ?? fallbackExpiry
+        let scopes = extractScopes(from: json)
+        let audience: String?
+        if let aud = json["aud"] as? String {
+            audience = aud
+        } else if let aud = json["aud"] as? [String] {
+            audience = aud.joined(separator: ", ")
+        } else {
+            audience = nil
+        }
+
+        return TokenMetadata(
+            expiresAt: expiry,
+            scopes: scopes,
+            subject: json["sub"] as? String,
+            issuer: json["iss"] as? String,
+            audience: audience
+        )
+    }
+
+    private static func extractScopes(from json: [String: Any]) -> [String] {
+        if let scope = json["scope"] as? String {
+            return scope.split(separator: " ").map(String.init).sorted()
+        }
+        if let scopes = json["scp"] as? [String] {
+            return scopes.sorted()
+        }
+        if let scopes = json["scopes"] as? [String] {
+            return scopes.sorted()
+        }
+        return []
+    }
+
+    private static func decodeBase64URL(_ value: String) -> Data? {
+        var base64 = value.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+        while base64.count % 4 != 0 { base64.append("=") }
+        return Data(base64Encoded: base64)
+    }
 }
 
 struct TokenResponse: Decodable {
@@ -159,6 +287,8 @@ enum OneAPIError: LocalizedError, Equatable {
     case invalidBaseURL
     case invalidResponse
     case httpStatus(Int, String)
+    case invalidGraphQLQuery
+    case invalidGraphQLVariables(String)
     case missingEndpointTemplate(String)
     case signedJWTNotConfigured
 
@@ -170,10 +300,55 @@ enum OneAPIError: LocalizedError, Equatable {
             return "OneAPI returned an invalid response."
         case .httpStatus(let code, let message):
             return "OneAPI request failed with HTTP \(code): \(message)"
+        case .invalidGraphQLQuery:
+            return "GraphQL transport is selected, but the endpoint template has no query text."
+        case .invalidGraphQLVariables(let message):
+            return "GraphQL variables JSON is invalid: \(message)"
         case .missingEndpointTemplate(let key):
             return "No endpoint template is configured for '\(key)'. Open Settings and add or reset endpoint templates."
         case .signedJWTNotConfigured:
             return "Signed JWT authentication is reserved for a future local signing configuration. Use client secret auth for now, or keep mock mode enabled."
+        }
+    }
+}
+
+enum GraphQLRequestBuilder {
+    static func body(for request: ReportRequest, template: EndpointTemplate) throws -> Data {
+        let query = template.graphqlQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            throw OneAPIError.invalidGraphQLQuery
+        }
+
+        let variables = try mergedVariables(for: request, variablesJSON: template.graphqlVariablesJSON)
+        let payload: [String: Any] = [
+            "query": query,
+            "variables": variables
+        ]
+        return try JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys])
+    }
+
+    private static func mergedVariables(for request: ReportRequest, variablesJSON: String) throws -> [String: Any] {
+        var variables = request.payload()
+        let trimmed = variablesJSON.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return variables
+        }
+
+        guard let data = trimmed.data(using: .utf8) else {
+            throw OneAPIError.invalidGraphQLVariables("Unable to encode variables as UTF-8.")
+        }
+
+        do {
+            let object = try JSONSerialization.jsonObject(with: data)
+            guard let dictionary = object as? [String: Any] else {
+                throw OneAPIError.invalidGraphQLVariables("Variables must be a JSON object.")
+            }
+            dictionary.forEach { variables[$0.key] = $0.value }
+            return variables
+        } catch let error as OneAPIError {
+            throw error
+        } catch {
+            throw OneAPIError.invalidGraphQLVariables(error.localizedDescription)
         }
     }
 }
@@ -184,20 +359,59 @@ enum OneAPIResponseParser {
             return []
         }
 
+        return rows(fromJSONObject: object)
+    }
+
+    static func rows(fromJSONObject object: Any) -> [[String: ReportValue]] {
+        rowsResult(fromJSONObject: object) ?? []
+    }
+
+    private static func rowsResult(fromJSONObject object: Any) -> [[String: ReportValue]]? {
+        if let rows = object as? [[String: Any]] {
+            return rows.map(normalizeGraphQLRow).map(convertRow)
+        }
+
+        if object is [Any] {
+            return []
+        }
+
         if let dictionary = object as? [String: Any] {
-            for key in ["rows", "data", "results", "items"] {
-                if let rows = dictionary[key] as? [[String: Any]] {
-                    return rows.map(convertRow)
+            for key in ["rows", "results", "items", "records", "nodes"] {
+                if let value = dictionary[key] {
+                    if let rows = value as? [[String: Any]] {
+                        return rows.map(normalizeGraphQLRow).map(convertRow)
+                    }
+                    if value is [Any] {
+                        return []
+                    }
                 }
             }
+
+            if let value = dictionary["edges"] {
+                if let edges = value as? [[String: Any]] {
+                    return edges.compactMap { $0["node"] as? [String: Any] }.map(convertRow)
+                }
+                if value is [Any] {
+                    return []
+                }
+            }
+
+            if let data = dictionary["data"] {
+                return rowsResult(fromJSONObject: data) ?? []
+            }
+
+            let nestedKeys = dictionary.keys.sorted()
+            for key in nestedKeys {
+                if let nested = dictionary[key],
+                   nested is [[String: Any]] || nested is [String: Any] || nested is [Any] {
+                    return rowsResult(fromJSONObject: nested)
+                }
+            }
+
             return [convertRow(dictionary)]
         }
 
-        if let rows = object as? [[String: Any]] {
-            return rows.map(convertRow)
-        }
-
-        return []
+        return nil
     }
 
     static func summaryCards(from rows: [[String: ReportValue]]) -> [SummaryCard] {
@@ -223,6 +437,13 @@ enum OneAPIResponseParser {
         row.reduce(into: [:]) { partial, item in
             partial[item.key] = convert(item.value)
         }
+    }
+
+    private static func normalizeGraphQLRow(_ row: [String: Any]) -> [String: Any] {
+        if let node = row["node"] as? [String: Any] {
+            return node
+        }
+        return row
     }
 
     private static func convert(_ value: Any) -> ReportValue {
