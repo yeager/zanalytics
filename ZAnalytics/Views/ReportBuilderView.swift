@@ -20,21 +20,26 @@ struct ReportBuilderView: View {
 }
 
 private struct ReportDescriptionView: View {
+    @EnvironmentObject private var appState: AppState
     let report: ReportDefinition
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(report.name)
+            Text(ReportLocalization.name(for: report, language: appState.preferences.language))
                 .font(.title2.weight(.semibold))
-            Text(report.summary)
+            Text(ReportLocalization.summary(for: report, language: appState.preferences.language))
                 .foregroundStyle(.secondary)
-            Label("Default category: \(report.category)", systemImage: "tag")
+            Label("\(t("Default category", "Standardkategori")): \(ReportLocalization.category(report.category, language: appState.preferences.language))", systemImage: "tag")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            Text(report.templateGuidance)
+            Text(ReportLocalization.guidance(for: report, language: appState.preferences.language))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }
 
@@ -42,12 +47,12 @@ private struct DateRangeSection: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
-        GroupBox("Date Range") {
+        GroupBox(t("Date Range", "Datumintervall")) {
             VStack(alignment: .leading, spacing: 10) {
-                DatePicker("From", selection: $appState.reportRequest.startDate, displayedComponents: [.date])
-                DatePicker("To", selection: $appState.reportRequest.endDate, displayedComponents: [.date])
+                DatePicker(t("From", "Från"), selection: $appState.reportRequest.startDate, displayedComponents: [.date])
+                DatePicker(t("To", "Till"), selection: $appState.reportRequest.endDate, displayedComponents: [.date])
                 if appState.reportRequest.endDate < appState.reportRequest.startDate {
-                    Label("End date must be after start date.", systemImage: "exclamationmark.triangle")
+                    Label(t("End date must be after start date.", "Slutdatum måste vara efter startdatum."), systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.red)
                         .font(.caption)
                 }
@@ -55,38 +60,46 @@ private struct DateRangeSection: View {
             .padding(.top, 4)
         }
     }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
+    }
 }
 
 private struct FieldsSection: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
-        GroupBox("Fields and Dimensions") {
+        GroupBox(t("Fields and Dimensions", "Fält och dimensioner")) {
             VStack(alignment: .leading, spacing: 12) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Fields")
+                    Text(t("Fields", "Fält"))
                         .font(.caption.weight(.semibold))
                     TextField("requests, blocked, users", text: $appState.reportRequest.fieldsText, axis: .vertical)
                         .lineLimit(2...5)
                 }
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Dimensions")
+                    Text(t("Dimensions", "Dimensioner"))
                         .font(.caption.weight(.semibold))
                     TextField("day, location, category", text: $appState.reportRequest.dimensionsText, axis: .vertical)
                         .lineLimit(2...5)
                 }
                 HStack {
-                    TextField("Sort", text: $appState.reportRequest.sort)
+                    TextField(t("Sort", "Sortering"), text: $appState.reportRequest.sort)
                     Stepper(value: $appState.reportRequest.limit, in: 1...10_000, step: 25) {
-                        Text("Limit: \(appState.reportRequest.limit)")
+                        Text("\(t("Limit", "Gräns")): \(appState.reportRequest.limit)")
                     }
                 }
-                Text("Use comma-separated field names from your tenant documentation. Prefix sort with '-' for descending where supported.")
+                Text(t("Use comma-separated field names from your tenant documentation. Prefix sort with '-' for descending where supported.", "Använd kommaseparerade fältnamn från tenant-dokumentationen. Prefixa sortering med '-' för fallande ordning där det stöds."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             .padding(.top, 4)
         }
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }
 
@@ -94,36 +107,40 @@ private struct FiltersSection: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
-        GroupBox("Filters") {
+        GroupBox(t("Filters", "Filter")) {
             VStack(alignment: .leading, spacing: 10) {
                 if appState.reportRequest.filters.isEmpty {
-                    EmptyInlineView(text: "No filters. Add one to narrow the report by user, location, app, action, severity, or any supported field.")
+                    EmptyInlineView(text: t("No filters. Add one to narrow the report by user, location, app, action, severity, or any supported field.", "Inga filter. Lägg till ett för att avgränsa rapporten efter användare, plats, app, åtgärd, allvarlighetsgrad eller annat fält som stöds."))
                 }
 
                 ForEach($appState.reportRequest.filters) { $filter in
                     HStack {
-                        TextField("Field", text: $filter.field)
-                        TextField("Operation", text: $filter.operation)
+                        TextField(t("Field", "Fält"), text: $filter.field)
+                        TextField(t("Operation", "Operation"), text: $filter.operation)
                             .frame(width: 110)
-                        TextField("Value", text: $filter.value)
+                        TextField(t("Value", "Värde"), text: $filter.value)
                         Button {
                             appState.reportRequest.filters.removeAll { $0.id == filter.id }
                         } label: {
                             Image(systemName: "minus.circle")
                         }
                         .buttonStyle(.borderless)
-                        .help("Remove filter")
+                        .help(t("Remove filter", "Ta bort filter"))
                     }
                 }
 
                 Button {
                     appState.reportRequest.filters.append(ReportFilter(field: "", operation: "equals", value: ""))
                 } label: {
-                    Label("Add Filter", systemImage: "plus")
+                    Label(t("Add Filter", "Lägg till filter"), systemImage: "plus")
                 }
             }
             .padding(.top, 4)
         }
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }
 
@@ -131,19 +148,23 @@ private struct PresentationSection: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
-        GroupBox("HTML Presentation") {
+        GroupBox(t("HTML Presentation", "HTML-presentation")) {
             VStack(alignment: .leading, spacing: 8) {
-                Picker("Template", selection: $appState.selectedHTMLTemplate) {
+                Picker(t("Template", "Mall"), selection: $appState.selectedHTMLTemplate) {
                     ForEach(ReportPresentationTemplate.allCases) { template in
-                        Text(template.label).tag(template)
+                        Text(template.localizedLabel(language: appState.preferences.language)).tag(template)
                     }
                 }
-                Text(appState.selectedHTMLTemplate.shortDescription)
+                Text(appState.selectedHTMLTemplate.localizedShortDescription(language: appState.preferences.language))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             .padding(.top, 4)
         }
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }
 
@@ -167,7 +188,7 @@ private struct RunSection: View {
                     .padding(.top, 4)
                 }
             } else {
-                Label("No endpoint template matches this report.", systemImage: "exclamationmark.triangle")
+                Label(t("No endpoint template matches this report.", "Ingen endpoint-mall matchar rapporten."), systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.red)
             }
 
@@ -177,9 +198,9 @@ private struct RunSection: View {
                 if appState.isLoading {
                     ProgressView()
                         .controlSize(.small)
-                    Text("Running")
+                    Text(t("Running", "Kör"))
                 } else {
-                    Label("Run Report", systemImage: "play.fill")
+                    Label(t("Run Report", "Kör rapport"), systemImage: "play.fill")
                 }
             }
             .buttonStyle(.borderedProminent)
@@ -191,6 +212,10 @@ private struct RunSection: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 
     private func endpointDescription(_ template: EndpointTemplate) -> String {

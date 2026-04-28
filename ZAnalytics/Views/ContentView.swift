@@ -27,7 +27,7 @@ struct ContentView: View {
             get: { appState.errorMessage != nil },
             set: { if !$0 { appState.errorMessage = nil } }
         )) {
-            Button("OK") { appState.errorMessage = nil }
+            Button(t("OK", "OK")) { appState.errorMessage = nil }
         } message: {
             Text(appState.errorMessage ?? "")
         }
@@ -41,6 +41,10 @@ struct ContentView: View {
                 appState.savePreferences()
             }
         )
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }
 
@@ -57,12 +61,12 @@ private struct SidebarView: View {
             }
         )) { report in
             VStack(alignment: .leading, spacing: 5) {
-                Text(report.name)
+                Text(localizedReportName(report))
                     .font(.headline)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
-                Text(report.category)
+                Text(localizedCategory(report.category))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -72,7 +76,7 @@ private struct SidebarView: View {
             .padding(.vertical, 5)
             .tag(report.id)
         }
-        .navigationTitle("Reports")
+        .navigationTitle(t("Reports", "Rapporter"))
         .navigationSplitViewColumnWidth(min: 260, ideal: 300, max: 380)
         .safeAreaInset(edge: .bottom) {
             VStack(alignment: .leading, spacing: 8) {
@@ -82,7 +86,7 @@ private struct SidebarView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("Unofficial helper. Not affiliated with Zscaler.")
+                Text(t("Unofficial helper. Not affiliated with Zscaler.", "Inofficiellt hjälpverktyg. Inte kopplat till Zscaler."))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -95,9 +99,9 @@ private struct SidebarView: View {
 
     private var statusLabel: String {
         switch appState.setupState {
-        case .mockMode: return "Mock data mode enabled"
-        case .needsSetup: return "OneAPI setup needed"
-        case .ready: return "OneAPI settings ready"
+        case .mockMode: return t("Mock data mode enabled", "Mockdataläge aktiverat")
+        case .needsSetup: return t("OneAPI setup needed", "OneAPI-inställningar behövs")
+        case .ready: return t("OneAPI settings ready", "OneAPI-inställningar klara")
         }
     }
 
@@ -107,6 +111,18 @@ private struct SidebarView: View {
         case .needsSetup: return "exclamationmark.triangle"
         case .ready: return "checkmark.seal"
         }
+    }
+
+    private func localizedReportName(_ report: ReportDefinition) -> String {
+        ReportLocalization.name(for: report, language: appState.preferences.language)
+    }
+
+    private func localizedCategory(_ category: String) -> String {
+        ReportLocalization.category(category, language: appState.preferences.language)
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }
 
@@ -119,12 +135,12 @@ private struct HeaderView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("ZAnalytics")
                     .font(.system(size: 26, weight: .semibold))
-                Text("Unofficial Zscaler OneAPI analytics helper. Tenant endpoints, features, and RBAC vary.")
+                Text(t("Unofficial Zscaler OneAPI analytics helper. Tenant endpoints, features, and RBAC vary.", "Inofficiellt analysverktyg för Zscaler OneAPI. Tenant-endpoints, funktioner och RBAC kan variera."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Toggle("Mock Data", isOn: Binding(
+            Toggle(t("Mock Data", "Mockdata"), isOn: Binding(
                 get: { appState.preferences.mockModeEnabled },
                 set: {
                     appState.preferences.mockModeEnabled = $0
@@ -135,11 +151,15 @@ private struct HeaderView: View {
             Button {
                 openSettings()
             } label: {
-                Label("Settings", systemImage: "gearshape")
+                Label(t("Settings", "Inställningar"), systemImage: "gearshape")
             }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
         .background(.background)
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }

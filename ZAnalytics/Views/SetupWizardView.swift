@@ -10,13 +10,13 @@ struct SetupWizardView: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Set Up ZAnalytics")
+                    Text(t("Set Up ZAnalytics", "Konfigurera ZAnalytics"))
                         .font(.title2.weight(.semibold))
-                    Text("Use mock mode now, or connect OneAPI when your ZIdentity client is ready.")
+                    Text(t("Use mock mode now, or connect OneAPI when your ZIdentity client is ready.", "Använd mockläge nu, eller anslut OneAPI när din ZIdentity-klient är klar."))
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text("Unofficial")
+                Text(t("Unofficial", "Inofficiell"))
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
@@ -30,20 +30,20 @@ struct SetupWizardView: View {
                 switch step {
                 case 0:
                     WizardPage(
-                        title: "What this app does",
+                        title: t("What this app does", "Vad appen gör"),
                         systemImage: "chart.bar.doc.horizontal",
-                        bodyText: "ZAnalytics helps build analytics report requests, run them against configurable OneAPI endpoint paths, and export clean JSON, CSV, or printable HTML reports. It is not affiliated with Zscaler."
+                        bodyText: t("ZAnalytics helps build analytics report requests, run them against configurable OneAPI endpoint paths, and export clean JSON, CSV, or printable HTML reports. It is not affiliated with Zscaler.", "ZAnalytics hjälper till att bygga analysrapportbegäranden, köra dem mot konfigurerbara OneAPI-endpoint-sökvägar och exportera rena JSON-, CSV- eller utskrivbara HTML-rapporter. Appen är inte kopplad till Zscaler.")
                     )
                 case 1:
                     WizardPage(
                         title: "OneAPI access",
                         systemImage: "person.badge.key",
-                        bodyText: "Use Zscaler Automation Hub (https://automate.zscaler.com) as the primary OneAPI reference. Create API access in ZIdentity, assign only the RBAC permissions your reporting use case needs, and copy the client ID, client secret or API secret, tenant/cloud information, and base URL. Some analytics categories and cached/repeated-query behavior depend on your tenant and licenses."
+                        bodyText: t("Use Zscaler Automation Hub (https://automate.zscaler.com) as the primary OneAPI reference. Create API access in ZIdentity, assign only the RBAC permissions your reporting use case needs, and copy the client ID, client secret or API secret, tenant/cloud information, and base URL. Some analytics categories and cached/repeated-query behavior depend on your tenant and licenses.", "Använd Zscaler Automation Hub (https://automate.zscaler.com) som primär OneAPI-referens. Skapa API-åtkomst i ZIdentity, tilldela bara de RBAC-behörigheter rapportbehovet kräver och kopiera klient-ID, klienthemlighet eller API-hemlighet, tenant-/molninformation och bas-URL. Vissa analyskategorier och cache-/upprepade-frågor-beteenden beror på tenant och licenser.")
                     )
                 default:
                     VStack(alignment: .leading, spacing: 16) {
-                        WizardPageHeader(title: "Choose a starting mode", systemImage: "switch.2")
-                        Toggle("Explore with mock sample data", isOn: Binding(
+                        WizardPageHeader(title: t("Choose a starting mode", "Välj startläge"), systemImage: "switch.2")
+                        Toggle(t("Explore with mock sample data", "Utforska med mockad exempeldata"), isOn: Binding(
                             get: { appState.preferences.mockModeEnabled },
                             set: {
                                 appState.preferences.mockModeEnabled = $0
@@ -51,13 +51,13 @@ struct SetupWizardView: View {
                             }
                         ))
                         .toggleStyle(.switch)
-                        Text("Mock mode keeps credentials optional and makes every canned report runnable. Turn it off when your OneAPI settings validate.")
+                        Text(t("Mock mode keeps credentials optional and makes every canned report runnable. Turn it off when your OneAPI settings validate.", "Mockläge gör autentiseringsuppgifter valfria och gör alla färdiga rapporter körbara. Stäng av det när OneAPI-inställningarna validerar."))
                             .foregroundStyle(.secondary)
                         Divider()
                         Button {
                             openSettings()
                         } label: {
-                            Label("Open OneAPI Settings", systemImage: "key")
+                            Label(t("Open OneAPI Settings", "Öppna OneAPI-inställningar"), systemImage: "key")
                         }
                     }
                     .padding(28)
@@ -77,10 +77,10 @@ struct SetupWizardView: View {
 
             Divider()
             HStack {
-                Button("Back") { step = max(0, step - 1) }
+                Button(t("Back", "Tillbaka")) { step = max(0, step - 1) }
                     .disabled(step == 0)
                 Spacer()
-                Button(step == 2 ? "Start Using ZAnalytics" : "Next") {
+                Button(step == 2 ? t("Start Using ZAnalytics", "Börja använda ZAnalytics") : t("Next", "Nästa")) {
                     if step == 2 {
                         appState.preferences.hasCompletedOnboarding = true
                         appState.savePreferences()
@@ -93,6 +93,10 @@ struct SetupWizardView: View {
             }
             .padding(20)
         }
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }
 

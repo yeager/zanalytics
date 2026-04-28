@@ -22,6 +22,7 @@ The distributed app/DMG is currently unsigned and not notarized. macOS may requi
 - Stores OneAPI connection settings securely in macOS Keychain.
 - Lets you test authentication separately from report endpoint/RBAC issues.
 - Provides mock sample data for demos, UI testing, and report design without credentials.
+- Offers English or Swedish UI, selectable in Settings with 🇬🇧/🇸🇪 language buttons.
 - Exports report output as JSON, CSV, HTML, PDF, and PowerPoint (`.pptx`).
 
 ## Current report catalog

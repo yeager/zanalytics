@@ -4,12 +4,54 @@ struct AppPreferences: Codable, Equatable {
     var mockModeEnabled: Bool
     var hasCompletedOnboarding: Bool
     var exportFolderBookmark: Data?
+    var language: AppLanguage
 
     static let defaults = AppPreferences(
         mockModeEnabled: true,
         hasCompletedOnboarding: false,
-        exportFolderBookmark: nil
+        exportFolderBookmark: nil,
+        language: .english
     )
+
+    init(
+        mockModeEnabled: Bool,
+        hasCompletedOnboarding: Bool,
+        exportFolderBookmark: Data?,
+        language: AppLanguage = .english
+    ) {
+        self.mockModeEnabled = mockModeEnabled
+        self.hasCompletedOnboarding = hasCompletedOnboarding
+        self.exportFolderBookmark = exportFolderBookmark
+        self.language = language
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.mockModeEnabled = try container.decode(Bool.self, forKey: .mockModeEnabled)
+        self.hasCompletedOnboarding = try container.decode(Bool.self, forKey: .hasCompletedOnboarding)
+        self.exportFolderBookmark = try container.decodeIfPresent(Data.self, forKey: .exportFolderBookmark)
+        self.language = try container.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .english
+    }
+}
+
+enum AppLanguage: String, Codable, CaseIterable, Identifiable {
+    case english
+    case swedish
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .english: return "🇬🇧 English"
+        case .swedish: return "🇸🇪 Svenska"
+        }
+    }
+}
+
+enum L10n {
+    static func text(_ english: String, _ swedish: String, language: AppLanguage) -> String {
+        language == .swedish ? swedish : english
+    }
 }
 
 protocol PreferenceStoring {

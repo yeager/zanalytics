@@ -48,9 +48,9 @@ final class AppState: ObservableObject {
         do {
             try settingsStore.save(secureSettings)
             errorMessage = nil
-            statusMessage = "Secure OneAPI settings saved in macOS Keychain."
+            statusMessage = t("Secure OneAPI settings saved in macOS Keychain.", "Säkra OneAPI-inställningar sparade i macOS Keychain.")
         } catch {
-            errorMessage = "Could not save settings to Keychain: \(error.localizedDescription)"
+            errorMessage = "\(t("Could not save settings to Keychain", "Kunde inte spara inställningar i Keychain")): \(error.localizedDescription)"
         }
     }
 
@@ -58,9 +58,9 @@ final class AppState: ObservableObject {
         do {
             try settingsStore.delete()
             secureSettings = .empty
-            statusMessage = "Secure settings removed from Keychain."
+            statusMessage = t("Secure settings removed from Keychain.", "Säkra inställningar borttagna från Keychain.")
         } catch {
-            errorMessage = "Could not remove secure settings: \(error.localizedDescription)"
+            errorMessage = "\(t("Could not remove secure settings", "Kunde inte ta bort säkra inställningar")): \(error.localizedDescription)"
         }
     }
 
@@ -72,7 +72,7 @@ final class AppState: ObservableObject {
     func resetEndpointTemplates() {
         endpointTemplates = EndpointTemplate.defaults
         preferenceStore.saveEndpointTemplates(endpointTemplates)
-        statusMessage = "Endpoint templates reset to placeholder defaults."
+        statusMessage = t("Endpoint templates reset to placeholder defaults.", "Endpoint-mallar återställda till platshållarstandard.")
     }
 
     func selectReport(_ report: ReportDefinition) {
@@ -100,7 +100,7 @@ final class AppState: ObservableObject {
                 let client = OneAPIClient(settings: secureSettings)
                 latestResult = try await client.runReport(reportRequest, using: endpointTemplates)
             }
-            statusMessage = "Report generated at \(DateFormatter.shortDateTime.string(from: Date()))."
+            statusMessage = "\(t("Report generated at", "Rapport genererad")) \(DateFormatter.shortDateTime.string(from: Date()))."
         } catch {
             errorMessage = ReportErrorPresenter.message(for: error)
         }
@@ -118,7 +118,7 @@ final class AppState: ObservableObject {
             let client = OneAPIClient(settings: secureSettings)
             let result = try await client.authenticate()
             authStatusMessage = result.statusText
-            statusMessage = "OneAPI authentication succeeded."
+            statusMessage = t("OneAPI authentication succeeded.", "OneAPI-autentisering lyckades.")
         } catch {
             errorMessage = ReportErrorPresenter.message(for: error)
         }
@@ -138,8 +138,8 @@ final class AppState: ObservableObject {
             probeRequest.presentationTemplate = selectedHTMLTemplate
             let client = OneAPIClient(settings: secureSettings)
             let result = try await client.testConnection(probeRequest, using: endpointTemplates)
-            connectionStatusMessage = "Endpoint OK | rows: \(result.rowCount) | request ID: \(result.requestID) | path: \(result.endpointPath)"
-            statusMessage = "OneAPI endpoint test succeeded at \(DateFormatter.shortDateTime.string(from: result.generatedAt))."
+            connectionStatusMessage = "Endpoint OK | \(t("rows", "rader")): \(result.rowCount) | \(t("request ID", "begärans-ID")): \(result.requestID) | \(t("path", "sökväg")): \(result.endpointPath)"
+            statusMessage = "\(t("OneAPI endpoint test succeeded at", "OneAPI-endpointtest lyckades")) \(DateFormatter.shortDateTime.string(from: result.generatedAt))."
         } catch {
             errorMessage = ReportErrorPresenter.message(for: error)
         }
@@ -147,16 +147,16 @@ final class AppState: ObservableObject {
 
     func exportLatestResult(as format: ExportFormat) -> URL? {
         guard let latestResult else {
-            errorMessage = "Run a report before exporting."
+            errorMessage = t("Run a report before exporting.", "Kör en rapport före export.")
             return nil
         }
 
         do {
             let url = try exportService.export(latestResult, as: format, template: selectedHTMLTemplate)
-            statusMessage = "Exported \(format.label) to \(url.path)."
+            statusMessage = "\(t("Exported", "Exporterade")) \(format.label) \(t("to", "till")) \(url.path)."
             return url
         } catch {
-            errorMessage = "Export failed: \(error.localizedDescription)"
+            errorMessage = "\(t("Export failed", "Export misslyckades")): \(error.localizedDescription)"
             return nil
         }
     }
@@ -164,17 +164,21 @@ final class AppState: ObservableObject {
     private func validateLiveSettings() throws {
         var issues: [String] = []
         if secureSettings.clientID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            issues.append("Client ID is required.")
+            issues.append(t("Client ID is required.", "Klient-ID krävs."))
         }
         if secureSettings.clientSecret.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            issues.append("Client secret or API secret is required.")
+            issues.append(t("Client secret or API secret is required.", "Klienthemlighet eller API-hemlighet krävs."))
         }
         if secureSettings.baseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            issues.append("Base URL is required.")
+            issues.append(t("Base URL is required.", "Bas-URL krävs."))
         }
         if !issues.isEmpty {
             throw ValidationError(issues: issues)
         }
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: preferences.language)
     }
 }
 

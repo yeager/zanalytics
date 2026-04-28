@@ -63,6 +63,22 @@ final class ZAnalyticsTests: XCTestCase {
         XCTAssertEqual(settings.normalizedAudience, "custom-audience")
     }
 
+    func testPreferencesDefaultToEnglishAndDecodeOldPayloads() throws {
+        let legacyJSON = #"{"mockModeEnabled":true,"hasCompletedOnboarding":false}"#.data(using: .utf8)!
+        let preferences = try JSONDecoder().decode(AppPreferences.self, from: legacyJSON)
+
+        XCTAssertEqual(preferences.language, .english)
+        XCTAssertTrue(preferences.mockModeEnabled)
+    }
+
+    func testSwedishReportLocalization() {
+        let report = ReportCatalog.defaults.first { $0.id == "executive-security-summary" }!
+
+        XCTAssertEqual(ReportLocalization.name(for: report, language: .swedish), "Säkerhetssammanfattning för ledning")
+        XCTAssertEqual(ReportLocalization.category(report.category, language: .swedish), "Ledning")
+        XCTAssertEqual(ReportPresentationTemplate.executiveSummary.localizedLabel(language: .swedish), "Ledningssammanfattning")
+    }
+
     func testGraphQLRequestBodyIncludesQueryAndMergedVariables() throws {
         let definition = ReportCatalog.defaults.first { $0.id == "web-usage" }!
         let request = ReportRequest(definition: definition)

@@ -12,13 +12,17 @@ struct ReportResultView: View {
             } else {
                 EmptyStateView(
                     systemImage: "doc.text.magnifyingglass",
-                    title: "No report yet",
+                    title: t("No report yet", "Ingen rapport ännu"),
                     message: appState.preferences.mockModeEnabled
-                        ? "Run a canned report to see sample analytics data, summary cards, and exports."
-                        : "Configure OneAPI settings, confirm endpoint paths, then run a report. Mock mode is available if you want to explore first."
+                        ? t("Run a canned report to see sample analytics data, summary cards, and exports.", "Kör en färdig rapport för att se exempeldata, sammanfattningskort och exporter.")
+                        : t("Configure OneAPI settings, confirm endpoint paths, then run a report. Mock mode is available if you want to explore first.", "Konfigurera OneAPI-inställningar, bekräfta endpoint-sökvägar och kör sedan en rapport. Mockläge finns om du vill utforska först.")
                 )
             }
         }
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
     }
 }
 
@@ -28,16 +32,16 @@ private struct ResultToolbar: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Report Output")
+                Text(t("Report Output", "Rapportutdata"))
                     .font(.headline)
-                Text("Export JSON, CSV, HTML, PDF, or PowerPoint reports.")
+                Text(t("Export JSON, CSV, HTML, PDF, or PowerPoint reports.", "Exportera rapporter som JSON, CSV, HTML, PDF eller PowerPoint."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Picker("HTML Template", selection: $appState.selectedHTMLTemplate) {
+            Picker(t("HTML Template", "HTML-mall"), selection: $appState.selectedHTMLTemplate) {
                 ForEach(ReportPresentationTemplate.allCases) { template in
-                    Text(template.label).tag(template)
+                    Text(template.localizedLabel(language: appState.preferences.language)).tag(template)
                 }
             }
             .frame(width: 230)
@@ -49,27 +53,32 @@ private struct ResultToolbar: View {
                     }
                 }
             } label: {
-                Label("Export", systemImage: "square.and.arrow.up")
+                Label(t("Export", "Exportera"), systemImage: "square.and.arrow.up")
             }
             .disabled(appState.latestResult == nil)
         }
         .padding(16)
         .background(.background)
     }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
+    }
 }
 
 private struct ResultContent: View {
+    @EnvironmentObject private var appState: AppState
     let result: ReportResult
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(result.reportName)
+                    Text(localizedReportName)
                         .font(.title2.weight(.semibold))
-                    Text("Generated \(result.generatedAt.formatted(date: .abbreviated, time: .shortened)) | \(result.dateRangeDescription)")
+                    Text("\(t("Generated", "Genererad")) \(result.generatedAt.formatted(date: .abbreviated, time: .shortened)) | \(result.dateRangeDescription)")
                         .foregroundStyle(.secondary)
-                    Text("Request ID: \(result.requestID)")
+                    Text("\(t("Request ID", "Begärans-ID")): \(result.requestID)")
                         .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
@@ -97,7 +106,7 @@ private struct ResultContent: View {
                 }
 
                 if result.rows.isEmpty {
-                    EmptyStateView(systemImage: "tablecells", title: "No rows returned", message: "The endpoint responded, but there were no tabular rows to display. Check filters, date range, and tenant permissions.")
+                    EmptyStateView(systemImage: "tablecells", title: t("No rows returned", "Inga rader returnerades"), message: t("The endpoint responded, but there were no tabular rows to display. Check filters, date range, and tenant permissions.", "Endpointen svarade, men det fanns inga tabellrader att visa. Kontrollera filter, datumintervall och tenant-behörigheter."))
                         .frame(minHeight: 240)
                 } else {
                     ResultTable(rows: result.rows)
@@ -107,9 +116,21 @@ private struct ResultContent: View {
         }
         .background(Color(nsColor: .controlBackgroundColor))
     }
+
+    private var localizedReportName: String {
+        guard let report = appState.reportCatalog.first(where: { $0.name == result.reportName || ReportLocalization.name(for: $0, language: .swedish) == result.reportName }) else {
+            return result.reportName
+        }
+        return ReportLocalization.name(for: report, language: appState.preferences.language)
+    }
+
+    private func t(_ english: String, _ swedish: String) -> String {
+        L10n.text(english, swedish, language: appState.preferences.language)
+    }
 }
 
 private struct ResultTable: View {
+    @EnvironmentObject private var appState: AppState
     let rows: [[String: ReportValue]]
 
     private var headers: [String] {
@@ -118,7 +139,7 @@ private struct ResultTable: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Rows")
+            Text(L10n.text("Rows", "Rader", language: appState.preferences.language))
                 .font(.headline)
             ScrollView(.horizontal) {
                 Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {

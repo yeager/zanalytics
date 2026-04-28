@@ -295,6 +295,64 @@ enum ReportCatalog {
     ]
 }
 
+enum ReportLocalization {
+    static func name(for report: ReportDefinition, language: AppLanguage) -> String {
+        guard language == .swedish else { return report.name }
+        switch report.id {
+        case "executive-security-summary": return "Säkerhetssammanfattning för ledning"
+        case "web-usage": return "Webbanvändning"
+        case "saas-shadow-it": return "SaaS / Shadow IT"
+        case "threat-overview": return "Hotöversikt"
+        case "firewall-network-activity": return "Brandväggs- / nätverksaktivitet"
+        case "zpa-access-activity": return "ZPA-åtkomstaktivitet"
+        case "zdx-experience-summary": return "ZDX-upplevelsesammanfattning"
+        default: return report.name
+        }
+    }
+
+    static func summary(for report: ReportDefinition, language: AppLanguage) -> String {
+        guard language == .swedish else { return report.summary }
+        switch report.id {
+        case "executive-security-summary": return "Ledningsvänlig vy över blockerade hot, riskfyllda destinationer, berörda användare och policyutfall."
+        case "web-usage": return "Visar vanligaste webbkategorier, bandbredd, användare, platser och policyåtgärder för användningsgranskningar."
+        case "saas-shadow-it": return "Lyfter upptäckta SaaS-appar, risknivåer, användning och signaler om osanktionerad användning."
+        case "threat-overview": return "Operativ vy över skadlig kod, nätfiske, C2 och andra detektioner grupperade efter allvarlighetsgrad och åtgärd."
+        case "firewall-network-activity": return "Sammanfattar Zero Trust Firewall-sessioner efter applikation, port, åtgärd, plats och volym."
+        case "zpa-access-activity": return "Följer åtkomst till privata appar, användare, connectors, policyåtgärder och nekade försök."
+        case "zdx-experience-summary": return "Sammanfattar användarupplevelsepoäng, enhetshälsa, applikationsupplevelse och nätverksproblem."
+        default: return report.summary
+        }
+    }
+
+    static func guidance(for report: ReportDefinition, language: AppLanguage) -> String {
+        guard language == .swedish else { return report.templateGuidance }
+        switch report.id {
+        case "executive-security-summary": return "Exporteras bäst som ledningssammanfattning med KPI-kort, allvarlighetsmarkeringar och en kompakt evidenstabell."
+        case "web-usage": return "Kundframgångsöversikten passar bra för användning, policyutfall och kategoritrender."
+        case "saas-shadow-it": return "Använd kundframgångsöversikt för införande- och styrningsdialoger; byt till teknisk detalj för appvis åtgärdsarbete."
+        case "threat-overview": return "Teknisk detalj behåller allvarlighetsgrupper och radvis evidens tydligt för säkerhetsdrift."
+        case "firewall-network-activity": return "Teknisk detalj är säkrast som standard för nätverksaktivitet eftersom portar, applikationer och åtgärder behöver spårbarhet."
+        case "zpa-access-activity": return "Kundframgångsöversikten lyfter användning, nekad åtkomst och connector-/applikationsmönster för servicegranskningar."
+        case "zdx-experience-summary": return "Ledningssammanfattningen håller upplevelsepoäng, påverkade användare och trendsignaler synliga för ledningsgranskning."
+        default: return report.templateGuidance
+        }
+    }
+
+    static func category(_ category: String, language: AppLanguage) -> String {
+        guard language == .swedish else { return category }
+        switch category {
+        case "Executive": return "Ledning"
+        case "Web": return "Webb"
+        case "Cybersecurity": return "Cybersäkerhet"
+        case "Firewall": return "Brandvägg"
+        case "Private Access": return "Privat åtkomst"
+        case "Digital Experience": return "Digital upplevelse"
+        case "Custom": return "Anpassad"
+        default: return category
+        }
+    }
+}
+
 enum ReportPresentationTemplate: String, Codable, CaseIterable, Identifiable {
     case executiveSummary
     case technicalDetail
@@ -310,6 +368,15 @@ enum ReportPresentationTemplate: String, Codable, CaseIterable, Identifiable {
         }
     }
 
+    func localizedLabel(language: AppLanguage) -> String {
+        guard language == .swedish else { return label }
+        switch self {
+        case .executiveSummary: return "Ledningssammanfattning"
+        case .technicalDetail: return "Teknisk detalj"
+        case .customerSuccessReview: return "Kundframgångsöversikt"
+        }
+    }
+
     var shortDescription: String {
         switch self {
         case .executiveSummary:
@@ -318,6 +385,18 @@ enum ReportPresentationTemplate: String, Codable, CaseIterable, Identifiable {
             return "Operational detail with severity/category grouping and full rows."
         case .customerSuccessReview:
             return "Adoption, value, trend, and follow-up sections for service reviews."
+        }
+    }
+
+    func localizedShortDescription(language: AppLanguage) -> String {
+        guard language == .swedish else { return shortDescription }
+        switch self {
+        case .executiveSummary:
+            return "Resultatinriktad berättelse, KPI-kort och kompakt evidens."
+        case .technicalDetail:
+            return "Operativa detaljer med allvarlighets-/kategorigruppering och fullständiga rader."
+        case .customerSuccessReview:
+            return "Införande, värde, trender och uppföljningsdelar för servicegranskningar."
         }
     }
 }
