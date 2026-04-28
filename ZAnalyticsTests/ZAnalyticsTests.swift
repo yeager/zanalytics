@@ -153,6 +153,47 @@ final class ZAnalyticsTests: XCTestCase {
         XCTAssertFalse(html.contains("https://cdn"))
     }
 
+    func testPDFRendererWritesPDFFile() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("zanalytics-test-\(UUID().uuidString).pdf")
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        try PDFReportRenderer.write(Self.sampleResult(), template: .executiveSummary, to: url)
+        let data = try Data(contentsOf: url)
+
+        XCTAssertTrue(data.starts(with: Data("%PDF".utf8)))
+        XCTAssertGreaterThan(data.count, 1_000)
+    }
+
+    func testPowerPointRendererWritesPPTXPackage() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("zanalytics-test-\(UUID().uuidString).pptx")
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        try PowerPointReportRenderer.write(Self.sampleResult(), template: .technicalDetail, to: url)
+        let data = try Data(contentsOf: url)
+
+        XCTAssertTrue(data.starts(with: Data([0x50, 0x4B])))
+        XCTAssertGreaterThan(data.count, 1_000)
+    }
+
+    private static func sampleResult() -> ReportResult {
+        ReportResult(
+            reportName: "Threat Overview",
+            endpointPath: "/mock",
+            requestID: "test",
+            dateRangeDescription: "Today",
+            summaryCards: [
+                SummaryCard(title: "Rows", value: "2", detail: "Returned records"),
+                SummaryCard(title: "Blocked", value: "42", detail: "Blocked requests")
+            ],
+            rows: [
+                ["severity": .string("Critical"), "threat_type": .string("Phishing"), "detections": .int(42)],
+                ["severity": .string("High"), "threat_type": .string("Malware"), "detections": .int(18)]
+            ],
+            rawJSON: "{}",
+            presentationTemplate: .executiveSummary
+        )
+    }
+
     private static func base64URL(_ string: String) -> String {
         string.data(using: .utf8)!
             .base64EncodedString()

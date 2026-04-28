@@ -12,7 +12,7 @@ This is an unofficial helper. It is not affiliated with, endorsed by, or sponsor
 - GraphQL templates include endpoint path, query text, and variables JSON. The app posts `{ "query": "...", "variables": { ... } }` and merges built-in report variables with tenant-specific overrides.
 - Settings buttons to authenticate, fetch an OAuth token, decode visible JWT metadata such as scopes/expiry, and test the selected report endpoint separately.
 - Mock sample data mode so the app can be explored without credentials.
-- JSON, CSV, and printable HTML exports. HTML supports Executive Summary, Technical Detail, and Customer Success Review presentation templates.
+- JSON, CSV, printable HTML, PDF, and PowerPoint (`.pptx`) exports. HTML/PDF/PPTX support Executive Summary, Technical Detail, and Customer Success Review presentation templates.
 - Offline HTML charts: KPI cards, CSS bar charts, inline SVG trend charts, severity/category sections, full table, methodology, footer, and an unofficial disclaimer. No external JavaScript, CDN, or network dependency is required for exported reports.
 - Keychain storage for OneAPI client ID, client secret/API secret, base URL, vanity domain, cloud name, tenant ID, audience, and token path.
 
@@ -38,7 +38,7 @@ Each canned report includes friendly presentation guidance and a default HTML te
 - Technical Detail: operational grouping, severity/category sections, full table, and methodology for validation.
 - Customer Success Review: adoption/value framing, trend view, follow-up sections, and customer-ready visuals.
 
-The HTML export template can be selected from the report output toolbar. JSON and CSV exports are unchanged and continue to emit raw response JSON or tabular rows.
+The presentation template can be selected from the report output toolbar. JSON and CSV exports emit raw response JSON or tabular rows; HTML/PDF/PPTX generate formatted report artifacts.
 
 Charts are generated from returned numeric fields using local CSS and SVG only. The renderer prefers common analytics fields such as `detections`, `requests`, `sessions`, `blocked`, `users`, `experience_score`, and `risk_score`, then falls back to the first numeric field it can detect.
 
@@ -68,7 +68,7 @@ Use Zscaler Automation Hub as the source of truth for current OneAPI behavior:
 - The app does not ship hardcoded secrets.
 - Use least-privilege RBAC for any ZIdentity API client.
 - Treat endpoint templates and GraphQL variables as configuration, not secrets. Do not place bearer tokens, client secrets, or customer-sensitive data in template notes or variables JSON.
-- Exported JSON, CSV, and HTML may contain tenant data. Store and share generated reports according to your organization policy.
+- Exported JSON, CSV, HTML, PDF, and PPTX may contain tenant data. Store and share generated reports according to your organization policy.
 
 ## Build and Test
 

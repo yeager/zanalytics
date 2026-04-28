@@ -30,7 +30,7 @@ private struct ResultToolbar: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("Report Output")
                     .font(.headline)
-                Text("Export JSON, CSV, or an offline HTML report with charts.")
+                Text("Export JSON, CSV, HTML, PDF, or PowerPoint reports.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
